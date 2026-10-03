@@ -1,0 +1,457 @@
+/* Tokens must be imported first: CSS requires @import before any other rule,
+   and Tailwind's directives expand into rules. */
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   SCHOOLFLOW — COMPONENT LAYER
+   ----------------------------------------------------------------------------
+   Every class below is built on the semantic tokens in styles/tokens.css.
+   Names are unchanged from the previous layer, so no page breaks; what changes
+   is what they are made of:
+
+     - gradients and glass removed (§2, §81)
+     - badges contrast-verified at 4.5:1 (WCAG 1.4.3)
+     - focus ring 2px + 3:1 change of contrast (WCAG 2.4.13)
+     - every interactive target ≥ 24×24px (WCAG 2.5.8)
+     - focusable elements can scroll clear of sticky headers (WCAG 2.4.11)
+     - durations and easings come from tokens, none invented per component
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Anchors and focused rows must clear the sticky header, otherwise the
+       focus indicator is hidden behind it (WCAG 2.4.11). */
+    scroll-padding-top: var(--sticky-offset);
+  }
+
+  body {
+    @apply bg-background text-text font-sans text-body;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  .dark body {
+    @apply bg-dark;
+  }
+
+  /* Focus visible everywhere, never removed. 2px solid + offset ring gives a
+     perimeter larger than the WCAG 2.4.13 minimum, and --focus-ring is
+     contrast-verified at 3:1 against the surfaces it appears on. */
+  :focus-visible {
+    @apply outline-none;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Anything that can receive focus clears the sticky header on scroll. */
+  a:focus-visible,
+  button:focus-visible,
+  [tabindex]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  tr:focus-visible {
+    scroll-margin-top: var(--sticky-offset);
+    scroll-margin-bottom: var(--sticky-offset);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-line rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-line-strong;
+  }
+
+  /* Reduced motion (§20, §51). Transforms are what trigger vestibular
+     reactions, so those are removed; opacity is kept because it carries no
+     motion. `useReducedMotion()` handles the JS side of this. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* ─────────────────────────── Buttons (§23) ───────────────────────────
+     Eight states, one recipe: hover lifts 1px, active presses to 0.98,
+     never a bounce. Disabled and loading are opacity, not a colour change. */
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-danger,
+  .btn-success,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap
+           transition-[background-color,border-color,color,box-shadow,transform]
+           duration-standard ease-standard
+           active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    border-radius: var(--radius-md);
+    /* Comfortable hit area without a bulky look (WCAG 2.5.8 floor is 24px). */
+    min-height: 38px;
+    padding: 0 var(--space-4);
+  }
+
+  .btn-primary {
+    @apply bg-accent text-[--text-on-accent] hover:bg-accent-hover active:bg-accent-active;
+  }
+
+  .btn-secondary {
+    @apply bg-surface text-ink border border-line hover:bg-surface-hover hover:border-line-strong;
+  }
+
+  .btn-ghost {
+    @apply text-ink-muted hover:bg-surface-hover hover:text-ink;
+    padding: 0 var(--space-3);
+  }
+
+  .btn-outline {
+    @apply border border-accent-border text-accent-text bg-transparent hover:bg-accent-subtle;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-[--text-on-accent] hover:brightness-95;
+  }
+
+  .btn-success {
+    @apply bg-success text-[--text-on-accent] hover:brightness-95;
+  }
+
+  .btn-lg {
+    min-height: 44px;
+    padding: 0 var(--space-5);
+  }
+
+  .btn-sm {
+    min-height: 32px;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  /* Square icon-only control. 36px clears the 24px WCAG floor with margin.
+     Always pair with an aria-label and a .tooltip. */
+  .btn-icon {
+    @apply inline-flex items-center justify-center text-ink-muted
+           transition-[background-color,color,transform] duration-fast ease-standard
+           hover:bg-surface-hover hover:text-ink active:scale-95
+           disabled:opacity-40 disabled:pointer-events-none;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+  }
+
+  /* ─────────────────────────── Forms (§24) ─────────────────────────── */
+  .input-field {
+    @apply w-full text-body text-ink bg-surface border border-line
+           placeholder:text-ink-placeholder
+           transition-[border-color,box-shadow] duration-fast ease-standard
+           focus:outline-none focus:border-accent
+           disabled:opacity-60 disabled:cursor-not-allowed;
+    min-height: 38px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-md);
+  }
+
+  .input-field:focus-visible {
+    box-shadow: var(--shadow-focus);
+  }
+
+  .input-error {
+    @apply border-danger focus:border-danger;
+  }
+
+  .input-label {
+    @apply block text-sm font-medium text-ink mb-1.5;
+  }
+
+  /* ─────────────────────────── Surfaces (§6, §7) ─────────────────────── */
+  .card {
+    @apply bg-surface-raised border border-line;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Lift is 1px and the shadow barely moves: a hint, not a floating poster. */
+  .card-hover {
+    @apply transition-[transform,box-shadow,border-color] duration-medium ease-standard;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-inset {
+    @apply bg-surface-inset border border-line;
+    border-radius: var(--radius-lg);
+  }
+
+  .card-interactive {
+    @apply card card-hover cursor-pointer;
+  }
+
+  /* ─────────────────────────── Status (§66) ───────────────────────────
+     Every colour pair below is verified at 4.5:1 by
+     scripts/check-contrast.mjs. The previous amber-on-amber badges failed
+     at 2.07:1; that is why the *text* role is much darker than the
+     decoration role. */
+  .badge {
+    @apply inline-flex items-center gap-1 font-medium whitespace-nowrap;
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+  }
+
+  .badge-success { @apply bg-success-soft text-success-text border-success-border; }
+  .badge-warning { @apply bg-warning-soft text-warning-text border-warning-border; }
+  .badge-danger  { @apply bg-danger-soft  text-danger-text  border-danger-border; }
+  .badge-info    { @apply bg-info-soft    text-info-text    border-info-border; }
+  .badge-neutral { @apply bg-surface-hover text-ink-secondary border-line; }
+  .badge-accent  { @apply bg-accent-subtle text-accent-text border-accent-border; }
+
+  /* ─────────────────────────── Loading (§40) ─────────────────────────── */
+  /* A restrained shimmer, not a pulsing block. */
+  .skeleton {
+    @apply rounded-md;
+    background-image: linear-gradient(
+      90deg,
+      var(--surface-sunken) 0%,
+      var(--surface-hover) 50%,
+      var(--surface-sunken) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* ─────────────────────────── Tooltip ────────────────────────────────── */
+  .tooltip {
+    @apply relative;
+  }
+
+  .tooltip::after {
+    content: attr(data-tip);
+    @apply pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full z-tooltip
+           mb-2 px-2 py-1 font-medium whitespace-nowrap opacity-0 translate-y-1
+           transition-[opacity,transform] duration-fast ease-standard;
+    top: auto;
+    font-size: var(--text-xs);
+    border-radius: var(--radius-sm);
+    background: var(--surface-inverse);
+    color: var(--text-on-inverse);
+  }
+
+  .tooltip:hover::after,
+  .tooltip:focus-visible::after {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* ─────────────────────────── Tables (§29) ─────────────────────────── */
+  .table-sticky thead th {
+    @apply sticky z-sticky bg-surface-sunken;
+    top: 0;
+  }
+
+  /* ─────────────────────────── Structure ─────────────────────────────── */
+  .divider {
+    @apply border-t border-line;
+  }
+
+  .section-label {
+    @apply text-caption font-semibold uppercase tracking-wider text-ink-subtle;
+  }
+
+  .page-title {
+    @apply text-h1 text-ink;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-ink-muted mt-1;
+  }
+
+  /* Screen-only vs print-only (§ printing). */
+  .print-only {
+    display: none;
+  }
+}
+
+@layer utilities {
+  /* Scroll target offset for in-page anchors under the sticky topbar. */
+  .scroll-mt-header {
+    scroll-margin-top: var(--sticky-offset);
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Visually hidden but announced by screen readers. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    @apply sr-only;
+  }
+}
+
+/* ============================================================================
+   PRINT
+   Documents print on white with black text regardless of theme (§23).
+   ========================================================================== */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  aside,
+  header,
+  .no-print,
+  .sf-no-print,
+  .fixed {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  .card,
+  .card-inset {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .print-only {
+    display: block !important;
+    color: #000;
+  }
+
+  /* Never let a table row split across pages, and repeat headers. */
+  .print-only thead {
+    display: table-header-group;
+  }
+
+  .print-only tr {
+    break-inside: avoid;
+  }
+
+  .print-only h1,
+  .print-only h2 {
+    color: #000;
+    font-size: 15pt;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .print-only p {
+    color: #111;
+    font-size: 11pt;
+  }
+
+  .print-only table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  .print-only th,
+  .print-only td {
+    border: 1px solid #999;
+    padding: 5px 7px;
+    font-size: 10pt;
+    text-align: left;
+    color: #000;
+  }
+
+  .print-only th {
+    background: #f0f0f0 !important;
+    font-weight: 700;
+  }
+
+  /* Receipt layout (§6) */
+  .receipt-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .receipt-logo {
+    max-height: 72px;
+    width: auto;
+    object-fit: contain;
+  }
+  .receipt-head h1 {
+    font-size: 16pt;
+    margin: 0 0 4px;
+  }
+  .receipt-head p {
+    margin: 0;
+    font-size: 10pt;
+    color: #111;
+  }
+  .receipt-code {
+    font-weight: 600;
+  }
+  .receipt-title {
+    font-size: 13pt;
+    margin: 0 0 8px;
+  }
+  .receipt-sign {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .receipt-sign-box {
+    flex: 1;
+    max-width: 260px;
+  }
+  .receipt-sign-box p {
+    margin: 0 0 4px;
+    font-size: 10pt;
+    font-weight: 600;
+  }
+  .receipt-sign-line {
+    display: block;
+    height: 48px;
+    border-bottom: 1px solid #000;
+  }
+  .receipt-stamp {
+    display: block;
+    width: 96px;
+    height: 96px;
+    border: 2px dashed #666;
+    border-radius: 50%;
+    margin-top: 4px;
+  }
+}

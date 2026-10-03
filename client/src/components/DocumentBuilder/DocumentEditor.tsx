@@ -1,0 +1,198 @@
+import React from 'react';
+import { useDocumentStore } from '../../hooks/useDocumentStore';
+import { Text, Image, Square, Trash2, Download, Printer, Settings, Table } from 'lucide-react';
+
+export const DocumentEditor = () => {
+  const { template, selectedElementId, selectElement, updateElement, addElement, deleteElement } = useDocumentStore();
+  
+  if (!template) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <button 
+          onClick={() => {
+            // In a real app, this would open a template selection modal
+            console.log("Open template selection");
+          }}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Select Template to Start
+        </button>
+      </div>
+    );
+  }
+
+  const selectedElement = template.elements.find((e) => e.id === selectedElementId);
+
+  return (
+    <div className="flex h-screen w-full bg-gray-100">
+      {/* Toolbar */}
+      <div className="w-16 bg-white border-r flex flex-col items-center py-4 space-y-6">
+        <button 
+          onClick={() => addElement('text')}
+          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+          title="Add Text"
+        >
+          <Text size={24} />
+        </button>
+        <button 
+          onClick={() => addElement('image')}
+          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+          title="Add Image"
+        >
+          <Image size={24} />
+        </button>
+        <button 
+          onClick={() => addElement('rectangle')}
+          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+          title="Add Shape"
+        >
+          <Square size={24} />
+        </button>
+        <div className="w-8 h-px bg-gray-200" />
+        <button 
+          onClick={() => addElement('circle')}
+          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+          title="Add Circle"
+        >
+          <Square size={24} />
+        </button>
+        <button 
+          onClick={() => addElement('table')}
+          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+          title="Add Table"
+        >
+          <Table size={24} />
+        </button>
+        <div className="w-8 h-px bg-gray-200" />
+        <button 
+          onClick={() => addElement('signature')}
+          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+          title="Add Signature"
+        >
+          <Square size={24} />
+        </button>
+        <div className="w-8 h-px bg-gray-200" />
+        <button 
+          onClick={() => addElement('stamp')}
+          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+          title="Add Stamp"
+        >
+          <Square size={24} />
+        </button>
+      </div>
+
+      {/* Canvas Area */}
+      <div className="flex-1 overflow-auto p-8 flex justify-center">
+        <div 
+          className="bg-white shadow-2xl relative"
+          style={{
+            width: '794px', 
+            height: '1123px',
+            position: 'relative'
+          }}
+        >
+          {template.elements.map((el) => (
+            <div
+              key={el.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                selectElement(el.id);
+              }}
+              className={`absolute cursor-move ${selectedElementId === el.id ? 'ring-2 ring-blue-500' : ''}`}
+              style={{
+                left: el.x,
+                top: el.y,
+                width: el.width,
+                height: el.height,
+                opacity: el.opacity,
+              }}
+            >
+              {el.type === 'text' && (
+                <div style={{ fontSize: `${el.style?.fontSize || 16}px`, color: el.style?.color || '#000' }}>
+                  {el.content}
+                </div>
+              )}
+              {el.type === 'image' && (
+                <img src={el.content} alt="element" className="w-full h-full object-contain" />
+              )}
+              {el.type === 'rectangle' && (
+                <div style={{ backgroundColor: el.style?.color || '#cbd5e1' }} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Properties Panel */}
+      <div className="w-80 bg-white border-l p-6 overflow-y-auto">
+        <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+          <Settings size={20} /> Properties
+        </h2>
+        
+        {selectedElementId && selectedElement ? (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Content</label>
+              <textarea 
+                className="w-full border rounded-md p-2 mt-1 text-sm min-h-[80px]"
+                value={selectedElement.content || ''}
+                onChange={(e) => {
+                  updateElement(selectedElementId, { content: e.target.value });
+                }}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">X Position</label>
+                <input 
+                  type="number" 
+                  className="w-full border rounded-md p-2 mt-1 text-sm"
+                  value={selectedElement.x || 0}
+                  onChange={(e) => {
+                    updateElement(selectedElementId, { x: parseInt(e.target.value) || 0 });
+                  }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Y Position</label>
+                <input 
+                  type="number" 
+                  className="w-full border rounded-md p-2 mt-1 text-sm"
+                  value={selectedElement.y || 0}
+                  onChange={(e) => {
+                    updateElement(selectedElementId, { y: parseInt(e.target.value) || 0 });
+                  }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Opacity</label>
+              <input 
+                type="range" 
+                min="0" max="1" step="0.01"
+                className="w-full mt-2"
+                value={selectedElement.opacity || 1}
+                onChange={(e) => {
+                  updateElement(selectedElementId, { opacity: parseFloat(e.target.value) });
+                }}
+              />
+            </div>
+
+            <button 
+              onClick={() => deleteElement(selectedElementId)}
+              className="w-full bg-red-50 text-red-600 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-red-100 transition"
+            >
+              <Trash2 size={16} /> Delete Element
+            </button>
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-10">
+            Select an element to edit properties
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
