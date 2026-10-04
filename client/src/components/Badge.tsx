@@ -43,5 +43,3 @@ export function Badge({
     </span>
   );
 }
-
-export { Badge };

@@ -1,4 +1,4 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, Op } from 'sequelize';
 import sequelize from '../config/database.js';
 
 class Payment extends Model {
@@ -23,6 +23,8 @@ class Payment extends Model {
   declare rateSource: string | null;
   declare rateEffectiveFrom: Date | null;
   declare rateId: string | null;
+  /** Idempotency key for safe payment retries. */
+  declare idempotencyKey: string | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
@@ -67,8 +69,22 @@ Payment.init(
     rateSource: { type: DataTypes.STRING(20) },
     rateEffectiveFrom: { type: DataTypes.DATE },
     rateId: { type: DataTypes.UUID, references: { model: 'exchange_rates', key: 'id' }, onDelete: 'SET NULL' },
+    idempotencyKey: { type: DataTypes.STRING(100) },
   },
-  { sequelize, tableName: 'payments', timestamps: true, underscored: true }
+  {
+    sequelize,
+    tableName: 'payments',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ['school_id', 'idempotency_key'],
+        name: 'payments_school_idem_key_unique',
+        where: { idempotency_key: { [Op.ne]: null } },
+      },
+    ],
+  }
 );
 
 export default Payment;

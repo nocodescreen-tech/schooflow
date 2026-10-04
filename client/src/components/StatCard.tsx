@@ -9,20 +9,14 @@ interface StatCardProps {
   icon: LucideIcon;
   trend?: number;
   trendLabel?: string;
-  /** Semantic accent for the icon tile. Defaults to the neutral surface. */
   tone?: 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
-  /**
-   * Legacy explicit tile class, kept for the existing callers
-   * (`color="bg-primary-500"`). Prefer `tone` in new code: it is what keeps the
-   * tile inside the design system instead of reaching for a raw utility.
-   */
   color?: string;
   prefix?: string;
   suffix?: string;
 }
 
 const TONE_CLASS: Record<NonNullable<StatCardProps['tone']>, string> = {
-  neutral: 'bg-surface-hover text-ink-secondary',
+  neutral: 'bg-surface-hover text-text-secondary',
   accent: 'bg-accent-subtle text-accent-text',
   success: 'bg-success-soft text-success-text',
   warning: 'bg-warning-soft text-warning-text',
@@ -30,13 +24,6 @@ const TONE_CLASS: Record<NonNullable<StatCardProps['tone']>, string> = {
   info: 'bg-info-soft text-info-text',
 };
 
-/**
- * Count-up on first paint (§33).
- *
- * The animation is a one-shot, never a loop, and it is skipped entirely when
- * the OS asks for reduced motion — a number that counts itself is decoration,
- * and decoration must not cost the user anything.
- */
 function useCountUp(target: number, reduce: boolean) {
   const [count, setCount] = useState(reduce ? target : 0);
   const fromRef = useRef(0);
@@ -52,7 +39,6 @@ function useCountUp(target: number, reduce: boolean) {
 
     const tick = (now: number) => {
       const t = Math.min((now - start) / 700, 1);
-      // easeOutCubic: fast start, gentle landing.
       const eased = 1 - Math.pow(1 - t, 3);
       setCount(Math.round(from + (target - from) * eased));
       if (t < 1) frame = requestAnimationFrame(tick);
@@ -87,8 +73,8 @@ export default function StatCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-ink-muted">{title}</p>
-          <p className="tabular-nums mt-1 text-h1 text-ink">
+          <p className="text-sm font-medium text-text-muted">{title}</p>
+          <p className="tabular-nums mt-1 text-h1 text-text">
             {prefix}
             {animatedValue.toLocaleString('fr-FR')}
             {suffix}
@@ -104,7 +90,7 @@ export default function StatCard({
                 {trend >= 0 ? '+' : ''}
                 {trend}%
               </span>
-              {trendLabel && <span className="text-xs text-ink-muted">{trendLabel}</span>}
+              {trendLabel && <span className="text-xs text-text-muted">{trendLabel}</span>}
             </div>
           )}
         </div>

@@ -17,7 +17,7 @@ import { useLanguageStore } from '../store/languageStore';
 import { getRoleHomePath } from '../lib/roles';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import api from '../lib/api';
-import { dialogVariants, errorSlide, shake, shakeKeyframes } from '../lib/motion';
+import { backdropVariants, dialogVariants, errorSlide, shake, shakeKeyframes } from '../lib/motion';
 
 type ResetStep = 'email' | 'code' | 'done';
 
@@ -56,7 +56,6 @@ export default function Login() {
     setError('');
     try {
       await login(email, password);
-      // A user who still owes their first password change goes straight to it.
       if (useAuthStore.getState().mustChangePassword) {
         navigate('/app/change-password', { replace: true });
         return;
@@ -90,7 +89,7 @@ export default function Login() {
     } catch (err) {
       setResetError(
         (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-          'Impossible d’envoyer le code de récupération.'
+          'Impossible d\'envoyer le code de récupération.'
       );
     } finally {
       setResetPending(false);
@@ -133,9 +132,8 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen bg-surface">
-      {/* ── Visual panel (§11) ────────────────────────────────────────────
-          A composed scene, not a photograph and not a gradient. The SVG carries
-          its own very slow character animation, which §11 explicitly allows. */}
+      {/* ── Visual panel (§11) ──
+           A composed scene, not a photograph and not a gradient. */}
       <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-surface-sunken lg:flex">
         <div className="relative flex h-full w-full max-w-lg flex-col items-center justify-center p-12">
           <img
@@ -144,8 +142,8 @@ export default function Login() {
             className="max-h-[62vh] w-auto"
           />
           <div className="mt-8 max-w-sm text-center">
-            <h2 className="text-h1 text-ink">Gérez votre école en toute simplicité</h2>
-            <p className="mt-3 text-body text-ink-muted">
+            <h2 className="text-h1 text-text">Gérez votre école en toute simplicité</h2>
+            <p className="mt-3 text-body text-text-muted">
               Scolarité, notes, présences, finance et documents officiels — dans un seul outil,
               pour tout votre établissement.
             </p>
@@ -153,23 +151,23 @@ export default function Login() {
         </div>
       </div>
 
-      {/* ── Form panel ──────────────────────────────────────────────────── */}
+      {/* ── Form panel ── */}
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="mb-8 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2.5">
+            <Link to="/" className="flex items-center gap-2.5" aria-label="SCHOOLFLOW - Accueil">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent">
                 <GraduationCap className="h-5 w-5 text-white" aria-hidden />
               </div>
-              <span className="text-h3 font-bold tracking-tight text-ink">
-                SCHOOL<span className="text-accent-text">FLOW</span>
+              <span className="text-h3 font-bold tracking-tight text-text">
+                SCHOOL<span className="text-accent">FLOW</span>
               </span>
             </Link>
             <LanguageSwitcher compact />
           </div>
 
-          <h1 className="text-display text-ink">Bon retour !</h1>
-          <p className="mb-8 mt-2 text-body text-ink-muted">Connectez-vous à votre compte</p>
+          <h1 className="text-display text-text">Bon retour !</h1>
+          <p className="mb-8 mt-2 text-body text-text-muted">Connectez-vous à votre compte</p>
 
           {/* Error feedback: a small shake plus a sliding message (§13). */}
           <motion.div
@@ -198,10 +196,10 @@ export default function Login() {
           >
             <div>
               <label htmlFor="login-email" className="input-label">
-                {t('auth.email')} <span className="font-normal text-ink-muted">ou identifiant</span>
+                {t('auth.email') || 'Email'} <span className="font-normal text-text-muted">ou identifiant</span>
               </label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" aria-hidden />
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" aria-hidden />
                 <input
                   id="login-email"
                   type="text"
@@ -217,10 +215,10 @@ export default function Login() {
 
             <div>
               <label htmlFor="login-password" className="input-label">
-                {t('auth.password')}
+                {t('auth.password') || 'Mot de passe'}
               </label>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" aria-hidden />
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" aria-hidden />
                 <input
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
@@ -245,16 +243,16 @@ export default function Login() {
               <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 rounded border-line accent-blue-600"
+                  className="h-4 w-4 rounded border-border accent-accent"
                 />
-                <span className="text-sm text-ink-muted">Se souvenir de moi</span>
+                <span className="text-sm text-text-muted">Se souvenir de moi</span>
               </label>
               <button
                 type="button"
                 onClick={() => setShowReset(true)}
                 className="text-sm font-medium text-accent-text hover:underline"
               >
-                {t('auth.forgotPassword')}
+                {t('auth.forgotPassword') || 'Mot de passe oublié ?'}
               </button>
             </div>
 
@@ -270,22 +268,22 @@ export default function Login() {
                 </>
               ) : (
                 <>
-                  {t('auth.login')}
+                  {t('auth.login') || 'Se connecter'}
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </>
               )}
             </button>
           </motion.form>
 
-          <p className="mt-6 text-center text-sm text-ink-muted">
-            {t('auth.noAccount')}{' '}
+          <p className="mt-6 text-center text-sm text-text-muted">
+            {t('auth.noAccount') || 'Pas de compte ?'}{' '}
             <Link to="/register" className="font-medium text-accent-text hover:underline">
-              {t('auth.register')}
+              {t('auth.register') || 'S\'inscrire'}
             </Link>
           </p>
 
-          <p className="mt-3 text-center text-sm text-ink-muted">
-            Élève ou parent avec un code d’activation ?{' '}
+          <p className="mt-3 text-center text-sm text-text-muted">
+            Élève ou parent avec un code d'activation ?{' '}
             <Link to="/activate" className="font-medium text-accent-text hover:underline">
               Activer mon compte
             </Link>
@@ -293,16 +291,16 @@ export default function Login() {
         </div>
       </div>
 
-      {/* ── Password reset (§14) ─────────────────────────────────────────── */}
+      {/* ── Password reset (§14) ── */}
       {showReset && (
         <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            onClick={closeReset}
+            variants={backdropVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="absolute inset-0 bg-slate-950/40"
+            onClick={closeReset}
           />
           <motion.div
             variants={dialogVariants}
@@ -312,10 +310,10 @@ export default function Login() {
             role="dialog"
             aria-modal="true"
             aria-label="Réinitialiser le mot de passe"
-            className="relative w-full max-w-md rounded-2xl border border-line bg-surface-raised p-6 shadow-lg"
+            className="relative w-full max-w-md rounded-2xl border border-border bg-surface-raised p-6 shadow-lg"
           >
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-h3 text-ink">Réinitialiser le mot de passe</h2>
+              <h2 className="text-h3 text-text">Réinitialiser le mot de passe</h2>
               <button onClick={closeReset} className="btn-icon" aria-label="Fermer">
                 <X className="h-5 w-5" />
               </button>
@@ -329,14 +327,14 @@ export default function Login() {
 
             {resetStep === 'email' && (
               <form onSubmit={requestResetCode} className="space-y-4">
-                <p className="text-sm text-ink-muted">
-                  Saisissez l’adresse email de votre compte. Si elle existe, un code de
+                <p className="text-sm text-text-muted">
+                  Saisissez l'adresse email de votre compte. Si elle existe, un code de
                   récupération vous sera envoyé.
                 </p>
                 <div>
                   <label htmlFor="reset-email" className="input-label">Adresse email</label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" aria-hidden />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" aria-hidden />
                     <input
                       id="reset-email"
                       type="email"
@@ -360,9 +358,9 @@ export default function Login() {
 
             {resetStep === 'code' && (
               <form onSubmit={submitNewPassword} className="space-y-4">
-                <p className="text-sm text-ink-muted">
+                <p className="text-sm text-text-muted">
                   Un code à 6 chiffres a été envoyé à{' '}
-                  <strong className="text-ink">{resetEmail}</strong>. Saisissez-le avec votre
+                  <strong className="text-text">{resetEmail}</strong>. Saisissez-le avec votre
                   nouveau mot de passe.
                 </p>
                 <div>
@@ -382,7 +380,7 @@ export default function Login() {
                 <div>
                   <label htmlFor="reset-new" className="input-label">Nouveau mot de passe</label>
                   <div className="relative">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" aria-hidden />
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" aria-hidden />
                     <input
                       id="reset-new"
                       type={showPassword ? 'text' : 'password'}
@@ -405,7 +403,7 @@ export default function Login() {
                 <div>
                   <label htmlFor="reset-confirm" className="input-label">Confirmer le mot de passe</label>
                   <div className="relative">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" aria-hidden />
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" aria-hidden />
                     <input
                       id="reset-confirm"
                       type={showPassword ? 'text' : 'password'}
@@ -432,8 +430,8 @@ export default function Login() {
             {resetStep === 'done' && (
               <div className="py-4 text-center">
                 <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-success" aria-hidden />
-                <h3 className="text-h3 text-ink">Mot de passe réinitialisé</h3>
-                <p className="mb-6 mt-2 text-sm text-ink-muted">
+                <h3 className="text-h3 text-text">Mot de passe réinitialisé</h3>
+                <p className="mb-6 mt-2 text-sm text-text-muted">
                   Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
                 </p>
                 <button onClick={closeReset} className="btn-primary btn-lg w-full">

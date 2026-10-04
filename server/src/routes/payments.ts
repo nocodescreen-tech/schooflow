@@ -9,6 +9,7 @@ import sequelize from '../config/database.js';
 import { getPagination, getSort, pages } from '../utils/listQuery.js';
 import { requireModule } from '../utils/modules.js';
 import { WebSocketEvents } from '../services/websocket.js';
+import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 
 const router = Router();
 router.use(authenticateToken);
@@ -106,6 +107,28 @@ router.post('/',
         return res.status(400).json({ success: false, error: 'Amount must be greater than 0' });
       }
 
+      // Idempotency: if a key is provided, check for an existing payment first
+      const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
+      if (idempotencyKey) {
+        const existing = await Payment.findOne({ where: { schoolId, idempotencyKey } });
+        if (existing) {
+          // Verify the request body matches the original to prevent key reuse
+          const bodyMatches =
+            existing.studentId === studentId &&
+            existing.amount === numericAmount &&
+            existing.method === method &&
+            (existing.feeId || null) === (feeId || null);
+          if (!bodyMatches) {
+            throw new AppError(
+              'Idempotency-Key was already used with different parameters',
+              409,
+              ErrorCode.IDEMPOTENCY_KEY_REUSED
+            );
+          }
+          return res.status(200).json({ success: true, data: { payment: existing, idempotent: true } });
+        }
+      }
+
       // Multi-currency: the parent may hand over a currency other than the
       // school's accounting currency. The rate is resolved (and frozen) BEFORE
       // the balance check, because fees and balances live in the base currency.
@@ -193,6 +216,7 @@ router.post('/',
           exchangeRate: conversion.rate,
           rateSource: conversion.rateSource,
           rateEffectiveFrom: conversion.rateEffectiveFrom,
+          idempotencyKey: idempotencyKey || null,
         }, { transaction: t });
 
         // Fee balances always live in the base currency.
@@ -242,6 +266,13 @@ router.post('/',
 
       return res.status(201).json({ success: true, data: { payment, conversion } });
     } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+        });
+      }
       const statusCode = (error as Error & { statusCode?: number }).statusCode || 500;
       return res.status(statusCode).json({ success: false, error: (error as Error).message });
     }
@@ -317,6 +348,13 @@ router.post('/:id/cancel',
 
       return res.json({ success: true, data: { payment: result.payment, fee: result.fee } });
     } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+        });
+      }
       const statusCode = (error as Error & { statusCode?: number }).statusCode || 500;
       return res.status(statusCode).json({ success: false, error: (error as Error).message });
     }

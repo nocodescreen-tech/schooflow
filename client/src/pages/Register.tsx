@@ -60,7 +60,7 @@ export default function Register() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Live password strength — no submit required to see it
+  // Live password strength
   const strength = (() => {
     const pw = formData.password;
     const checks = [
@@ -117,7 +117,7 @@ export default function Register() {
     e.preventDefault();
     setError('');
     if (!acceptTerms) {
-      setError('Vous devez accepter les conditions générales d’utilisation');
+      setError('Vous devez accepter les conditions générales d\'utilisation');
       return;
     }
     try {
@@ -183,7 +183,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-dark">
+    <div className="min-h-screen flex bg-surface">
       {/* Left Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
         <motion.div
@@ -193,19 +193,19 @@ export default function Register() {
           className="w-full max-w-md py-8"
         >
           <div className="flex items-center justify-between mb-8">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2" aria-label="SCHOOLFLOW - Accueil">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent">
                 <GraduationCap className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold text-text dark:text-white">
-                SCHOOL<span className="text-primary-500">FLOW</span>
+                SCHOOL<span className="text-accent">FLOW</span>
               </span>
             </Link>
             <LanguageSwitcher compact />
           </div>
 
           <h1 className="text-3xl font-bold text-text dark:text-white mb-2">Créer un compte</h1>
-          <p className="text-muted dark:text-gray-400 mb-6">
+          <p className="text-text-muted dark:text-gray-400 mb-6">
             Créez le compte de direction de votre établissement
           </p>
 
@@ -223,18 +223,18 @@ export default function Register() {
                       done
                         ? 'bg-success'
                         : active
-                          ? 'bg-primary-500'
-                          : 'bg-gray-200 dark:bg-white/10'
+                        ? 'bg-accent'
+                        : 'bg-border'
                     )}
                   />
                   <p
                     className={cn(
-                      'text-[11px] mt-1.5 font-medium',
+                      'text-caption mt-1.5 font-medium',
                       active
-                        ? 'text-primary-500'
+                        ? 'text-accent'
                         : done
-                          ? 'text-success'
-                          : 'text-muted dark:text-gray-500'
+                        ? 'text-success'
+                        : 'text-text-subtle'
                     )}
                   >
                     {label}
@@ -259,11 +259,11 @@ export default function Register() {
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
-                  {t('auth.schoolName')}
+                <label className="input-label">
+                  {t('auth.schoolName') || 'Nom de l\'établissement'}
                 </label>
                 <div className="relative">
-                  <School className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                  <School className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                   <input
                     type="text"
                     value={formData.schoolName}
@@ -275,11 +275,11 @@ export default function Register() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
-                    {t('auth.firstName')}
+                  <label className="input-label">
+                    {t('auth.firstName') || 'Prénom'}
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                     <input
                       type="text"
                       value={formData.firstName}
@@ -290,11 +290,11 @@ export default function Register() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
-                    {t('auth.lastName')}
+                  <label className="input-label">
+                    {t('auth.lastName') || 'Nom'}
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                     <input
                       type="text"
                       value={formData.lastName}
@@ -306,27 +306,28 @@ export default function Register() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
+                <label className="input-label">
                   Téléphone
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => updateField('phone', e.target.value)}
                     className={cn(
                       'input-field pl-11 pr-10',
-                      formData.phone.length > 0 && !phoneValid && '!border-danger'
+                      formData.phone.length > 0 && !phoneValid && 'input-error'
                     )}
                     placeholder="+224 6 XX XX XX XX"
                   />
-                  {formData.phone.length > 0 &&
-                    (phoneValid ? (
+                  {formData.phone.length > 0 && (
+                    phoneValid ? (
                       <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success" />
                     ) : (
                       <X className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-danger" />
-                    ))}
+                    )
+                  )}
                 </div>
                 {formData.phone.length > 0 && !phoneValid && (
                   <p className="text-xs text-danger mt-1.5">Numéro de téléphone invalide</p>
@@ -347,27 +348,28 @@ export default function Register() {
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
-                  {t('auth.email')}
+                <label className="input-label">
+                  {t('auth.email') || 'Email'}
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => updateField('email', e.target.value)}
                     className={cn(
                       'input-field pl-11 pr-10',
-                      formData.email.length > 0 && !emailValid && '!border-danger'
+                      formData.email.length > 0 && !emailValid && 'input-error'
                     )}
                     placeholder="admin@ecole.fr"
                   />
-                  {formData.email.length > 0 &&
-                    (emailValid ? (
+                  {formData.email.length > 0 && (
+                    emailValid ? (
                       <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success" />
                     ) : (
                       <X className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-danger" />
-                    ))}
+                    )
+                  )}
                 </div>
                 {formData.email.length > 0 && !emailValid && (
                   <p className="text-xs text-danger mt-1.5">Adresse email invalide</p>
@@ -375,11 +377,11 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
-                  {t('auth.password')}
+                <label className="input-label">
+                  {t('auth.password') || 'Mot de passe'}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
@@ -390,20 +392,21 @@ export default function Register() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text transition-colors"
+                    className="btn-icon absolute right-1.5 top-1/2 -translate-y-1/2"
+                    aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
 
                 {formData.password.length > 0 && (
                   <div className="mt-3">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <div className="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
+                      <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
                         <motion.div
                           initial={false}
                           animate={{ width: `${(strength.score / 4) * 100}%` }}
-                          transition={{ duration: 0.2 }}
+                          transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
                           className={`h-full rounded-full ${strength.color}`}
                         />
                       </div>
@@ -415,9 +418,9 @@ export default function Register() {
                           {c.ok ? (
                             <Check className="w-3 h-3 text-success shrink-0" />
                           ) : (
-                            <X className="w-3 h-3 text-muted shrink-0" />
+                            <X className="w-3 h-3 text-text-subtle shrink-0" />
                           )}
-                          <span className={c.ok ? 'text-muted dark:text-gray-400' : 'text-muted/60 dark:text-gray-600'}>
+                          <span className={c.ok ? 'text-text-muted' : 'text-text-subtle'}>
                             {c.label}
                           </span>
                         </li>
@@ -428,26 +431,27 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
+                <label className="input-label">
                   Confirmer le mot de passe
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                   <input
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => updateField('confirmPassword', e.target.value)}
-                    className={cn('input-field pl-11 pr-10', !passwordMatch && '!border-danger')}
+                    className={cn('input-field pl-11 pr-10', !passwordMatch && 'input-error')}
                     placeholder="••••••••"
                   />
-                  {formData.confirmPassword.length > 0 &&
-                    (formData.password === formData.confirmPassword ? (
+                  {formData.confirmPassword.length > 0 && (
+                    formData.password === formData.confirmPassword ? (
                       <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success" />
                     ) : (
                       <X className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-danger" />
-                    ))}
+                    )
+                  )}
                 </div>
-                {!passwordMatch && (
+                {!passwordMatch && formData.confirmPassword.length > 0 && (
                   <p className="text-xs text-danger mt-1.5">
                     Les deux mots de passe ne correspondent pas
                   </p>
@@ -480,33 +484,25 @@ export default function Register() {
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="card p-5 space-y-3">
                 <h2 className="font-semibold text-text dark:text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-primary-500" />
+                  <ShieldCheck className="w-5 h-5 text-accent" />
                   Récapitulatif
                 </h2>
                 <dl className="text-sm space-y-1.5">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted dark:text-gray-400">Établissement</dt>
-                    <dd className="font-medium text-text dark:text-gray-200 text-right">
-                      {formData.schoolName}
-                    </dd>
+                    <dt className="text-text-muted">{t('auth.schoolName') || 'Établissement'}</dt>
+                    <dd className="font-medium text-text text-right">{formData.schoolName}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted dark:text-gray-400">Nom</dt>
-                    <dd className="font-medium text-text dark:text-gray-200 text-right">
-                      {formData.firstName} {formData.lastName}
-                    </dd>
+                    <dt className="text-text-muted">{t('auth.firstName') || 'Prénom'}</dt>
+                    <dd className="font-medium text-text text-right">{formData.firstName} {formData.lastName}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted dark:text-gray-400">Téléphone</dt>
-                    <dd className="font-medium text-text dark:text-gray-200 text-right">
-                      {formData.phone}
-                    </dd>
+                    <dt className="text-text-muted">Téléphone</dt>
+                    <dd className="font-medium text-text text-right">{formData.phone}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted dark:text-gray-400">Email</dt>
-                    <dd className="font-medium text-text dark:text-gray-200 text-right break-all">
-                      {formData.email}
-                    </dd>
+                    <dt className="text-text-muted">{t('auth.email') || 'Email'}</dt>
+                    <dd className="font-medium text-text text-right break-all">{formData.email}</dd>
                   </div>
                 </dl>
               </div>
@@ -515,12 +511,12 @@ export default function Register() {
                   type="checkbox"
                   checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
-                  className="w-5 h-5 mt-0.5 rounded border-border text-primary-500 focus:ring-primary-500 shrink-0"
+                  className="w-5 h-5 mt-0.5 rounded border-border text-accent focus:ring-accent shrink-0"
                 />
                 <span className="text-sm text-text dark:text-gray-300">
-                  J’accepte les{' '}
-                  <Link to="/legal" className="text-primary-500 hover:text-primary-600 font-medium">
-                    conditions générales d’utilisation
+                  J'accepte les{' '}
+                  <Link to="/legal" className="text-accent hover:text-accent-hover font-medium">
+                    conditions générales d'utilisation
                   </Link>{' '}
                   et la politique de confidentialité de SCHOOLFLOW. Ce champ est obligatoire.
                 </span>
@@ -543,7 +539,7 @@ export default function Register() {
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
-                      {t('auth.register')}
+                      {t('auth.register') || 'Créer le compte'}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -556,15 +552,15 @@ export default function Register() {
           {step === 4 && (
             <form onSubmit={handleVerify} className="space-y-4">
               <div className="card p-5 text-center">
-                <ShieldCheck className="w-10 h-10 text-primary-500 mx-auto mb-3" />
+                <ShieldCheck className="w-10 h-10 text-accent mx-auto mb-3" />
                 <h2 className="font-semibold text-text dark:text-white">Vérifiez votre email</h2>
-                <p className="text-sm text-muted dark:text-gray-400 mt-1">
+                <p className="text-sm text-text-muted mt-1">
                   Un code à 6 chiffres a été envoyé à{' '}
-                  <strong className="text-text dark:text-gray-200">{formData.email}</strong>
+                  <strong className="text-text">{formData.email}</strong>
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-text dark:text-gray-300 mb-1.5">
+                <label className="input-label">
                   Code de vérification
                 </label>
                 <input
@@ -600,24 +596,24 @@ export default function Register() {
                 {resending
                   ? 'Envoi…'
                   : cooldown > 0
-                    ? `Renvoyer le code (${cooldown}s)`
-                    : 'Renvoyer le code'}
+                  ? `Renvoyer le code (${cooldown}s)`
+                  : 'Renvoyer le code'}
               </button>
             </form>
           )}
 
           {step < 4 && (
-            <p className="mt-6 text-center text-sm text-muted dark:text-gray-400">
-              {t('auth.hasAccount')}{' '}
-              <Link to="/login" className="text-primary-500 hover:text-primary-600 font-medium">
-                {t('auth.login')}
+            <p className="mt-6 text-center text-sm text-text-muted">
+              {t('auth.hasAccount') || 'Déjà un compte ?'}{' '}
+              <Link to="/login" className="font-medium text-accent hover:text-accent-hover">
+                {t('auth.login') || 'Se connecter'}
               </Link>
             </p>
           )}
         </motion.div>
       </div>
 
-      {/* Right Panel — composed scene, no decorative blobs (§2, §81) */}
+      {/* Right Panel — composed scene, no decorative blobs */}
       <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-surface-sunken lg:flex">
         <div className="relative z-10 w-full max-w-md p-10 text-center">
           <motion.div
@@ -630,8 +626,8 @@ export default function Register() {
               alt="Classe en situation d'apprentissage avec SCHOOLFLOW"
               className="mx-auto mb-8 w-full max-w-xs"
             />
-            <h2 className="text-h1 text-ink">Votre établissement, en un seul endroit</h2>
-            <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+            <h2 className="text-h1 text-text">Votre établissement, en un seul endroit</h2>
+            <p className="mt-3 text-sm leading-relaxed text-text-muted">
               Élèves, notes, présences, frais scolaires et bulletins — gérés par votre équipe
               chaque jour, avec des données isolées par établissement.
             </p>

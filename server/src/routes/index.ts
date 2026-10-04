@@ -45,13 +45,17 @@ import currencyRoutes from './currencies.js';
 import usersRoutes from './users.js';
 import activationCodeRoutes, { publicActivationRouter } from './activation-codes.js';
 import contactRoutes from './contact.js';
+import backupRoutes from './backup.js';
+import libraryRoutes from './library.js';
+import transportRoutes from './transport.js';
+import boardingRoutes from './boarding.js';
+import healthRoutes from './health.js';
+import diagnosticsRoutes from './diagnostics.js';
 import { authLimiter, apiLimiter } from '../middleware/rateLimit.js';
 
 const router = Router();
 
-router.get('/health', (_req, res) => {
-  res.json({ success: true, data: { status: 'healthy', timestamp: new Date().toISOString() } });
-});
+router.use('/', healthRoutes);
 
 router.use('/auth', authLimiter, authRoutes);
 router.use('/students', apiLimiter, studentRoutes);
@@ -103,5 +107,23 @@ router.use('/activation', authLimiter, publicActivationRouter);
 
 // Contact form (public, rate-limited)
 router.use('/contact', authLimiter, contactRoutes);
+
+// Backup management (super_admin only, defined with full paths)
+router.use(backupRoutes);
+
+// Health check (public)
+router.use('/health', healthRoutes);
+
+// Library module
+router.use('/library', apiLimiter, libraryRoutes);
+
+// Transport module
+router.use('/transport', apiLimiter, transportRoutes);
+
+// Boarding module
+router.use('/boarding', apiLimiter, boardingRoutes);
+
+// Diagnostics (admin only)
+router.use('/diagnostics', apiLimiter, diagnosticsRoutes);
 
 export default router;

@@ -74,5 +74,3 @@ export default function Modal({
     </AnimatePresence>
   );
 }
-
-export default Modal;

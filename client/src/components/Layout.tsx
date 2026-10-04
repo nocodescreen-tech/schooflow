@@ -19,7 +19,7 @@ export default function Layout() {
 
   return (
     <WebSocketProvider>
-      <div className="min-h-screen bg-background dark:bg-dark">
+      <div className="min-h-screen bg-surface">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="lg:pl-[280px]">
           <Topbar onMenuClick={() => setSidebarOpen(true)} />

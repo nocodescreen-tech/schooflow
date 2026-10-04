@@ -41,20 +41,20 @@ export default function Activate() {
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
       const message = (err as { response?: { data?: { error?: string } } }).response?.data?.error;
-      setError(message ?? 'Activation impossible. Vérifiez votre code.');
+      setError(message ?? 'Activation impossible. V\u00e9rifiez votre code.');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-dark flex flex-col">
+    <div className="min-h-screen bg-surface flex flex-col">
       <header className="flex items-center justify-between px-6 py-4">
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-primary-500 flex items-center justify-center">
+        <Link to="/" className="flex items-center gap-2.5" aria-label="SCHOOLFLOW - Accueil">
+          <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <span className="font-bold text-text">SCHOOL<span className="text-primary-500">FLOW</span></span>
+          <span className="font-bold text-text">SCHOOL<span className="text-accent">FLOW</span></span>
         </Link>
         <ThemeToggle />
       </header>
@@ -64,9 +64,9 @@ export default function Activate() {
           {done ? (
             <div className="card p-8 text-center">
               <CheckCircle2 className="w-12 h-12 text-success mx-auto mb-4" />
-              <h1 className="text-xl font-bold text-text mb-2">Compte activé</h1>
-              <p className="text-sm text-muted mb-6">
-                Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.
+              <h1 className="text-xl font-bold text-text mb-2">Compte activ\u00e9</h1>
+              <p className="text-sm text-text-muted mb-6">
+                Votre compte a \u00e9t\u00e9 cr\u00e9\u00e9 avec succ\u00e8s. Vous pouvez maintenant vous connecter.
               </p>
               <Link to="/login" className="btn-primary w-full">
                 Se connecter <ArrowRight className="w-4 h-4" />
@@ -75,20 +75,20 @@ export default function Activate() {
           ) : (
             <div className="card p-8">
               <div className="text-center mb-6">
-                <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center mx-auto mb-3">
-                  <KeyRound className="w-6 h-6 text-primary-500" />
+                <div className="w-12 h-12 rounded-xl bg-accent-subtle flex items-center justify-center mx-auto mb-3">
+                  <KeyRound className="w-6 h-6 text-accent" />
                 </div>
                 <h1 className="text-xl font-bold text-text">Activer mon compte</h1>
-                <p className="text-sm text-muted mt-1">
-                  Saisissez le code reçu de votre établissement
+                <p className="text-sm text-text-muted mt-1">
+                  Saisissez le code re\u00e7u de votre \u00e9tablissement
                 </p>
               </div>
 
               <form onSubmit={onSubmit} className="space-y-4">
                 <div>
-                  <label className="label">Code d’activation</label>
+                  <label className="input-label">Code d\u2019activation</label>
                   <input
-                    className="input w-full text-center font-mono tracking-widest uppercase"
+                    className="input-field text-center font-mono tracking-widest uppercase"
                     value={form.code}
                     onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                     placeholder="XXXXXXXX"
@@ -98,54 +98,54 @@ export default function Activate() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="label">Matricule</label>
+                    <label className="input-label">Matricule</label>
                     <input
-                      className="input w-full font-mono"
+                      className="input-field font-mono"
                       value={form.matricule}
                       onChange={(e) => setForm({ ...form, matricule: e.target.value })}
                       placeholder="SCF-2026-00124"
                     />
                   </div>
                   <div>
-                    <label className="label">Date de naissance</label>
+                    <label className="input-label">Date de naissance</label>
                     <input
                       type="date"
-                      className="input w-full"
+                      className="input-field"
                       value={form.dateOfBirth}
                       onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
                     />
                   </div>
                 </div>
-                <p className="text-xs text-muted -mt-2">
-                  Élèves : le matricule et la date de naissance doivent correspondre au dossier scolaire.
+                <p className="text-xs text-text-muted -mt-2">
+                  \u00c9l\u00e8ves : le matricule et la date de naissance doivent correspondre au dossier scolaire.
                 </p>
                 <div>
-                  <label className="label">Adresse email</label>
+                  <label className="input-label">Adresse email</label>
                   <input
                     type="email"
-                    className="input w-full"
+                    className="input-field"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label className="label">Mot de passe</label>
+                  <label className="input-label">Mot de passe</label>
                   <input
                     type="password"
-                    className="input w-full"
+                    className="input-field"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     minLength={8}
                     required
                   />
-                  <p className="text-xs text-muted mt-1">8 caractères minimum.</p>
+                  <p className="text-xs text-text-muted mt-1">8 caract\u00e8res minimum.</p>
                 </div>
                 <div>
-                  <label className="label">Confirmer le mot de passe</label>
+                  <label className="input-label">Confirmer le mot de passe</label>
                   <input
                     type="password"
-                    className="input w-full"
+                    className="input-field"
                     value={form.confirm}
                     onChange={(e) => setForm({ ...form, confirm: e.target.value })}
                     required
@@ -156,20 +156,20 @@ export default function Activate() {
                 </div>
 
                 {error && (
-                  <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10">
+                  <div className="p-3 rounded-xl border border-danger-border bg-danger-soft">
                     <p className="text-sm text-danger">{error}</p>
                   </div>
                 )}
 
                 <button type="submit" className="btn-primary w-full" disabled={!canSubmit}>
-                  {loading ? 'Activation…' : 'Activer mon compte'}
+                  {loading ? 'Activation\u2026' : 'Activer mon compte'}
                 </button>
               </form>
 
               <div className="mt-6 pt-5 border-t border-border dark:border-white/10 flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-muted shrink-0 mt-0.5" />
-                <p className="text-xs text-muted">
-                  Votre code est à usage unique et expire. Il ne peut pas être réutilisé après activation.
+                <ShieldCheck className="w-4 h-4 text-text-muted shrink-0 mt-0.5" />
+                <p className="text-xs text-text-muted">
+                  Votre code est \u00e0 usage unique et expire. Il ne peut pas \u00eatre r\u00e9utilis\u00e9 apr\u00e8s activation.
                 </p>
               </div>
             </div>

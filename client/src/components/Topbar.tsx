@@ -30,7 +30,6 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
   const notifRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
-  // Real notifications from the API
   const { data: notificationsData } = useQuery({
     queryKey: ['notifications-topbar'],
     queryFn: async () => {
@@ -48,7 +47,6 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications-topbar'] }),
   });
 
-  // Command palette shortcut
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -81,19 +79,19 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-topbar border-b border-line bg-surface">
+    <header className="sticky top-0 z-topbar border-b border-border bg-surface">
       <div className="flex items-center justify-between px-4 lg:px-6 h-16">
         <div className="flex items-center gap-3">
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-colors"
+            className="lg:hidden p-2 hover:bg-surface-hover rounded-xl transition-colors"
           >
             <Menu className="w-5 h-5" />
           </button>
           <GlobalSearch />
           <button
             onClick={() => setShowPalette(true)}
-            className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border dark:border-white/10 text-sm text-muted dark:text-gray-400 hover:border-primary-500/50 hover:text-primary-500 transition-colors"
+            className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border dark:border-white/10 text-sm text-text-muted dark:text-gray-400 hover:border-accent/50 hover:text-accent transition-colors"
             title="Ouvrir la palette de commandes"
           >
             <CommandIcon className="w-4 h-4" />
@@ -111,9 +109,9 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-colors"
+              className="relative p-2 hover:bg-surface-hover rounded-xl transition-colors"
             >
-              <Bell className="w-5 h-5 text-muted dark:text-gray-400" />
+              <Bell className="w-5 h-5 text-text-muted dark:text-gray-400" />
               {unreadCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
               )}
@@ -124,7 +122,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                   initial={{ opacity: 0, y: 8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  className="absolute right-0 mt-2 w-80 z-[150] bg-surface rounded-2xl border border-border shadow-xl overflow-hidden dark:bg-[#1E293B] dark:border-white/10"
+                  className="absolute right-0 mt-2 w-80 z-dropdown bg-surface-raised rounded-2xl border border-border shadow-lg overflow-hidden dark:border-white/10"
                 >
                   <div className="px-4 py-3 border-b border-border dark:border-white/10 flex items-center justify-between gap-2">
                     <h3 className="font-semibold text-sm">
@@ -134,7 +132,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                       <button
                         onClick={markAllRead}
                         disabled={notificationsMutation.isPending}
-                        className="text-xs text-primary-500 hover:text-primary-600 font-medium disabled:opacity-50"
+                        className="text-xs text-accent hover:text-accent-hover font-medium disabled:opacity-50"
                       >
                         Tout marquer comme lu
                       </button>
@@ -143,8 +141,8 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                   <div className="max-h-80 overflow-y-auto">
                     {notifications.length === 0 ? (
                       <div className="px-4 py-8 text-center">
-                        <Bell className="w-8 h-8 text-muted mx-auto mb-2" />
-                        <p className="text-sm text-muted dark:text-gray-400">
+                        <Bell className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                        <p className="text-sm text-text-muted dark:text-gray-400">
                           Aucune notification pour le moment
                         </p>
                       </div>
@@ -153,23 +151,24 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                       <div
                         key={notif.id}
                         className={cn(
-                          'px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer border-b border-border/50 dark:border-white/5 last:border-0',
-                          !notif.isRead && 'bg-primary-50/50 dark:bg-primary-500/10'
+                          'px-4 py-3 hover:bg-surface-hover transition-colors cursor-pointer border-b border-border/50 dark:border-white/5 last:border-0',
+                          !notif.isRead && 'bg-accent-subtle/50 dark:bg-accent/10'
                         )}
                       >
                         <div className="flex items-start gap-3">
                           {!notif.isRead && (
-                            <span className="w-2 h-2 bg-primary-500 rounded-full mt-1.5 flex-shrink-0" />
+                            <span className="w-2 h-2 bg-accent rounded-full mt-1.5 flex-shrink-0" />
                           )}
                           <div className={cn(notif.isRead && 'ml-5')}>
                             <p className="text-sm font-medium text-text">{notif.title}</p>
-                            <p className="text-xs text-muted mt-0.5">
+                            <p className="text-xs text-text-muted mt-0.5">
                               {new Date(notif.createdAt).toLocaleString('fr-FR')}
                             </p>
                           </div>
                         </div>
                       </div>
-                    )))}
+                    ))
+                  )}
                   </div>
                 </motion.div>
               )}
@@ -179,10 +178,10 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           <div className="relative" ref={userMenuRef}>
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-colors"
+              className="flex items-center gap-2 p-1.5 hover:bg-surface-hover rounded-xl transition-colors"
             >
-              <div className="w-8 h-8 bg-primary-500/10 rounded-full flex items-center justify-center">
-                <span className="text-xs font-semibold text-primary-500">
+              <div className="w-8 h-8 bg-accent-subtle rounded-full flex items-center justify-center">
+                <span className="text-xs font-semibold text-accent">
                   {(user?.name ?? '?')
                     .split(' ')
                     .filter(Boolean)
@@ -191,7 +190,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                     .join('')}
                 </span>
               </div>
-              <ChevronDown className="w-4 h-4 text-muted hidden sm:block" />
+              <ChevronDown className="w-4 h-4 text-text-muted hidden sm:block" />
             </button>
             <AnimatePresence>
               {showUserMenu && (
@@ -199,17 +198,17 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                   initial={{ opacity: 0, y: 8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  className="absolute right-0 mt-2 w-56 z-[150] bg-surface rounded-2xl border border-border shadow-xl overflow-hidden dark:bg-[#1E293B] dark:border-white/10"
+                  className="absolute right-0 mt-2 w-56 z-dropdown bg-surface-raised rounded-2xl border border-border shadow-lg overflow-hidden dark:border-white/10"
                 >
                   <div className="px-4 py-3 border-b border-border dark:border-white/10">
                     <p className="text-sm font-semibold text-text">
                       {user?.name}
                     </p>
-                    <p className="text-xs text-muted">{user?.email}</p>
+                    <p className="text-xs text-text-muted">{user?.email}</p>
                   </div>
                   {roles.length > 1 && (
                     <div className="px-3 py-2 border-b border-border dark:border-white/10">
-                      <p className="px-1 text-xs font-medium text-muted dark:text-gray-400">
+                      <p className="px-1 text-xs font-medium text-text-muted dark:text-gray-400">
                         Espace :
                       </p>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
@@ -226,8 +225,8 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                               className={cn(
                                 'px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors capitalize',
                                 isActive
-                                  ? 'bg-primary-500/10 text-primary-500 border-primary-500/30'
-                                  : 'text-muted dark:text-gray-400 border-border dark:border-white/10 hover:text-text hover:border-primary-500/50 dark:hover:text-gray-100'
+                                  ? 'bg-accent-subtle text-accent border-accent-border'
+                                  : 'text-text-muted dark:text-gray-400 border-border dark:border-white/10 hover:text-text hover:border-accent/50 dark:hover:text-gray-100'
                               )}
                             >
                               {role.name}
@@ -240,21 +239,21 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                   <div className="p-1">
                     <button
                       onClick={() => { setShowUserMenu(false); navigate('/app/settings'); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted hover:text-text hover:bg-gray-50 dark:hover:bg-white/5 dark:hover:text-gray-100 rounded-lg transition-colors"
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-muted hover:text-text hover:bg-surface-hover rounded-lg transition-colors"
                     >
                       <Settings className="w-4 h-4" />
                       Paramètres
                     </button>
                     <button
                       onClick={() => { setShowUserMenu(false); navigate('/app/profile'); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted hover:text-text hover:bg-gray-50 dark:hover:bg-white/5 dark:hover:text-gray-100 rounded-lg transition-colors"
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-muted hover:text-text hover:bg-surface-hover rounded-lg transition-colors"
                     >
                       <User className="w-4 h-4" />
                       Mon profil
                     </button>
                     <button
                       onClick={() => { setShowUserMenu(false); navigate('/app/sessions'); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted hover:text-text hover:bg-gray-50 dark:hover:bg-white/5 dark:hover:text-gray-100 rounded-lg transition-colors"
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-muted hover:text-text hover:bg-surface-hover rounded-lg transition-colors"
                     >
                       <Monitor className="w-4 h-4" />
                       Sessions actives
@@ -262,7 +261,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                     <hr className="my-1 border-border dark:border-white/10" />
                     <button
                       onClick={() => { setShowUserMenu(false); setShowContactForm(true); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted hover:text-primary-500 hover:bg-primary-500/10 rounded-lg transition-colors"
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-muted hover:text-accent hover:bg-accent-subtle rounded-lg transition-colors"
                     >
                       <LifeBuoy className="w-4 h-4" />
                       Contacter le support
@@ -270,7 +269,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                     <hr className="my-1 border-border dark:border-white/10" />
                     <button
                       onClick={() => { logout(); navigate('/login'); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-danger hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-danger hover:bg-danger-soft rounded-lg transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       Déconnexion
