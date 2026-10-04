@@ -246,7 +246,7 @@ router.post('/assessments/:id/grades', requirePermission('grades', 'create'),
             academicYearId: assessment.academicYearId,
             assessmentId: assessment.id,
             periodId: assessment.periodId,
-            max,
+            maxScore: max,
             absence: e.absence ?? false,
             remark: e.remark ?? null,
             date: assessment.date ?? new Date(),
@@ -258,7 +258,7 @@ router.post('/assessments/:id/grades', requirePermission('grades', 'create'),
           if (existing) {
             await existing.update(payload, { transaction: t });
           } else {
-            await Grade.create(payload, { transaction: t });
+            await Grade.create({ ...payload, createdBy: req.user!.id }, { transaction: t });
           }
           count += 1;
         }
@@ -347,7 +347,7 @@ router.get('/results/stats', requirePermission('grades', 'view'),
         success: true,
         data: {
           total: results.length,
-          classAverage: applyRounding(averages.reduce((a, b) => a + b, 0) / averages.length, rules),
+          classAverage: applyRounding(averages.reduce((a, b) => a + b, 0) / averages.length, rules.rounding, rules.precision),
           passRate: Math.round((passed / results.length) * 100),
           best: results.reduce((a, b) => (b.average > a.average ? b : a)),
           worst: results.reduce((a, b) => (b.average < a.average ? b : a)),
@@ -510,7 +510,10 @@ router.post('/config',
   body('cycleId').optional({ nullable: true }).isUUID().withMessage('cycleId invalide'),
   body('niveauId').optional({ nullable: true }).isUUID().withMessage('niveauId invalide'),
   body('passingAverage').optional().isFloat({ min: 0, max: 20 }).withMessage('passingAverage doit être entre 0 et 20'),
-  body('mentionThresholds').optional().isObject().withMessage('mentionThresholds doit être un objet'),
+  body('mentionThresholds').optional().custom((value) => {
+    if (value === undefined || value === null || typeof value === 'object') return true;
+    throw new Error('mentionThresholds doit être un objet');
+  }).withMessage('mentionThresholds doit être un objet'),
   body('rounding').optional().isIn(['standard', 'floor', 'ceil']).withMessage('rounding invalide'),
   body('precision').optional().isInt({ min: 0, max: 4 }).withMessage('precision invalide'),
   body('weighting').optional().isIn(['coefficient', 'equal']).withMessage('weighting invalide'),
@@ -530,7 +533,10 @@ router.post('/config',
   body('minValidGrade').optional().isFloat({ min: 0, max: 20 }).withMessage('minValidGrade invalide'),
   body('maxValidGrade').optional().isFloat({ min: 0, max: 20 }).withMessage('maxValidGrade invalide'),
   body('includeAbsentInAverage').optional().isBoolean().withMessage('includeAbsentInAverage invalide'),
-  body('customGradeScales').optional().isObject().withMessage('customGradeScales invalide'),
+  body('customGradeScales').optional().custom((value) => {
+    if (value === undefined || value === null || typeof value === 'object') return true;
+    throw new Error('customGradeScales invalide');
+  }).withMessage('customGradeScales invalide'),
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
@@ -567,8 +573,8 @@ router.post('/config',
         return config;
       });
 
-      await logAudit(req, { action: 'grading_config_created', entity: 'grading_config', entityId: config.id, details: { cycleId: config.cycleId, niveauId: config.niveauId } });
-      return res.status(201).json({ success: true, data: { config } });
+      await logAudit(req, { action: 'grading_config_created', entity: 'grading_config', entityId: row.id, details: { cycleId: row.cycleId, niveauId: row.niveauId } });
+      return res.status(201).json({ success: true, data: { config: row } });
     } catch (error) {
       return res.status(500).json({ success: false, error: (error as Error).message });
     }
@@ -582,7 +588,10 @@ router.put('/config/:id',
   requirePermission('grades', 'validate'),
   uuid('id'),
   body('passingAverage').optional().isFloat({ min: 0, max: 20 }).withMessage('passingAverage doit être entre 0 et 20'),
-  body('mentionThresholds').optional().isObject().withMessage('mentionThresholds doit être un objet'),
+  body('mentionThresholds').optional().custom((value) => {
+    if (value === undefined || value === null || typeof value === 'object') return true;
+    throw new Error('mentionThresholds doit être un objet');
+  }).withMessage('mentionThresholds doit être un objet'),
   body('rounding').optional().isIn(['standard', 'floor', 'ceil']).withMessage('rounding invalide'),
   body('precision').optional().isInt({ min: 0, max: 4 }).withMessage('precision invalide'),
   body('weighting').optional().isIn(['coefficient', 'equal']).withMessage('weighting invalide'),
@@ -596,7 +605,10 @@ router.put('/config/:id',
   body('minValidGrade').optional().isFloat({ min: 0, max: 20 }).withMessage('minValidGrade invalide'),
   body('maxValidGrade').optional().isFloat({ min: 0, max: 20 }).withMessage('maxValidGrade invalide'),
   body('includeAbsentInAverage').optional().isBoolean().withMessage('includeAbsentInAverage invalide'),
-  body('customGradeScales').optional().isObject().withMessage('customGradeScales invalide'),
+  body('customGradeScales').optional().custom((value) => {
+    if (value === undefined || value === null || typeof value === 'object') return true;
+    throw new Error('customGradeScales invalide');
+  }).withMessage('customGradeScales invalide'),
   async (req: Request, res: Response) => {
     try {
       if (rejectInvalid(req, res)) return;

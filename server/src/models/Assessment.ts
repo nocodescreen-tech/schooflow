@@ -6,6 +6,10 @@ import sequelize from '../config/database.js';
  *
  * An assessment belongs to one period and one subject/class combination.
  * It carries its own max score, coefficient, date, and type.
+ *
+ * Legacy aliases (`periodId`, `assessmentType`) are exposed as VIRTUAL
+ * getters so historical code keeps working while the canonical
+ * columns remain `evaluationPeriodId` and `type`.
  */
 class Assessment extends Model {
   declare id: string;
@@ -21,8 +25,13 @@ class Assessment extends Model {
   declare date: Date;
   declare isPublished: boolean;
   declare description: string | null;
+  declare academicYearId: string | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
+
+  // Legacy aliases (virtual — not persisted)
+  declare periodId: string;
+  declare assessmentType: string;
 }
 
 Assessment.init(
@@ -40,6 +49,20 @@ Assessment.init(
     date: { type: DataTypes.DATEONLY, allowNull: false },
     isPublished: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     description: { type: DataTypes.TEXT },
+    academicYearId: { type: DataTypes.UUID, references: { model: 'academic_years', key: 'id' }, onDelete: 'SET NULL' },
+    // Legacy virtual aliases
+    periodId: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return (this as unknown as { evaluationPeriodId: string }).evaluationPeriodId;
+      },
+    },
+    assessmentType: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return (this as unknown as { type: string }).type;
+      },
+    },
   },
   { sequelize, tableName: 'assessments', timestamps: true, underscored: true }
 );

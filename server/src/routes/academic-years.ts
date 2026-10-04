@@ -28,7 +28,7 @@ const SORTABLE = { name: 'name', startDate: 'startDate', endDate: 'endDate', sta
 // ─── List academic years ───
 router.get(
   '/',
-  requireRole(...['super_admin', 'admin', 'director', 'teacher', 'accountant', 'receptionist']),
+  requireRole(...(['super_admin', 'admin', 'director', 'teacher', 'accountant', 'receptionist'] as const)),
   requirePermission('academic-years', 'view'),
   query('status').optional().isIn(['draft', 'active', 'closed']),
   async (req: Request, res: Response) => {
@@ -110,7 +110,7 @@ router.get(
 // ─── Create academic year ───
 router.post(
   '/',
-  requireRole(...['super_admin', 'admin', 'director']),
+  requireRole(...(['super_admin', 'admin', 'director'] as const)),
   requirePermission('academic-years', 'manage'),
   body('name').trim().notEmpty().withMessage('Le nom est requis'),
   body('startDate').isISO8601().withMessage('Date de début invalide'),
@@ -381,7 +381,7 @@ router.post(
         const sourcePeriods = await (await import('../models/index.js')).EvaluationPeriod.findAll({ where: { academicYearId: sourceYear.id } });
         for (const period of sourcePeriods) {
           await (await import('../models/index.js')).EvaluationPeriod.create({
-            academicYearId: (await import('../models/index.js')).AcademicYear.findOne({ where: { schoolId, name: targetName } })?.id,
+            academicYearId: (await (await import('../models/index.js')).AcademicYear.findOne({ where: { schoolId, name: targetName } }))?.id,
             name: period.name,
             code: period.code,
             startDate: new Date(targetStart.getFullYear(), period.startDate.getMonth(), period.startDate.getDate()),
@@ -391,7 +391,7 @@ router.post(
         }
       }
 
-      await logAudit(req, { action: 'rollover_prepare', entity: 'academic_year', entityId: (await import('../models/index.js')).AcademicYear.findOne({ where: { schoolId, name: targetName } })?.id, details: { sourceYear: sourceYear.name, targetName } });
+      await logAudit(req, { action: 'rollover_prepare', entity: 'academic_year', entityId: (await (await import('../models/index.js')).AcademicYear.findOne({ where: { schoolId, name: targetName } }))?.id, details: { sourceYear: sourceYear.name, targetName } });
 
       return res.json({ success: true, data: { message: 'Année cible préparée', targetYearName: targetName } });
     } catch (error) {

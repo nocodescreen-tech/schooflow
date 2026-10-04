@@ -128,6 +128,8 @@ export interface StudentResult {
   studentName: string;
   className: string;
   generalAverage: number;
+  /** Alias for generalAverage — historical callers read `average`. */
+  average: number;
   weightedAverage: number;
   totalCoefficient: number;
   subjectAverages: SubjectAverageResult[];
@@ -521,26 +523,126 @@ export async function computeClassStats(
 }
 
 /**
- * Compute student results for a period (with all subjects).
+ * Compute student results for a period (bulk).
+ *
+ * Accepts either a single studentId (legacy positional call) or an
+ * options object with schoolId + academicYearId + periodId and an
+ * optional classId / studentIds filter. Returns one StudentResult per
+ * matching student, so callers can map/filter/reduce over the array.
  */
 export async function computeStudentResults(
+  studentIdOrOptions: string | {
+    schoolId: string;
+    academicYearId?: string | null;
+    periodId?: string | null;
+    classId?: string | null;
+    studentIds?: string[];
+  },
+  periodId?: string,
+  schoolId?: string,
+  options: Partial<GradeAverageOptions> = {}
+): Promise<StudentResult[]> {
+  // Legacy positional call: (studentId, periodId, schoolId, options)
+  if (typeof studentIdOrOptions === 'string') {
+    const single = await computeSingleStudentResult(studentIdOrOptions, periodId!, schoolId!, options);
+    return [single];
+  }
+
+  // Bulk call
+  const { schoolId: sid, academicYearId, periodId: pid, classId, studentIds } = studentIdOrOptions;
+
+  // Resolve the period to use
+  let resolvedPeriodId = pid ?? null;
+  if (!resolvedPeriodId) {
+    const period = await resolvePeriod(sid);
+    resolvedPeriodId = period?.id ?? null;
+  }
+
+  // Determine the set of students to compute
+  let studentList: Array<{ id: string; firstName: string; lastName: string; classId: string | null }> = [];
+  if (studentIds && studentIds.length > 0) {
+    studentList = await Student.findAll({
+      where: { id: { [Op.in]: studentIds }, schoolId: sid },
+      attributes: ['id', 'firstName', 'lastName', 'classId'],
+    }) as unknown as Array<{ id: string; firstName: string; lastName: string; classId: string | null }>;
+  } else if (classId) {
+    studentList = await Student.findAll({
+      where: { classId, schoolId: sid, status: 'active' },
+      attributes: ['id', 'firstName', 'lastName', 'classId'],
+      order: [['lastName', 'ASC']],
+    }) as unknown as Array<{ id: string; firstName: string; lastName: string; classId: string | null }>;
+  } else {
+    // All active students in the school
+    studentList = await Student.findAll({
+      where: { schoolId: sid, status: 'active' },
+      attributes: ['id', 'firstName', 'lastName', 'classId'],
+      order: [['lastName', 'ASC']],
+    }) as unknown as Array<{ id: string; firstName: string; lastName: string; classId: string | null }>;
+  }
+
+  const results: StudentResult[] = [];
+  for (const s of studentList) {
+    if (!resolvedPeriodId) {
+      // No period — return a zeroed result so the caller still gets a row
+      results.push({
+        studentId: s.id,
+        studentName: `${s.lastName} ${s.firstName}`,
+        className: '',
+        generalAverage: 0,
+        average: 0,
+        weightedAverage: 0,
+        totalCoefficient: 0,
+        subjectAverages: [],
+        rank: null,
+        totalStudents: studentList.length,
+        mention: 'Non évalué',
+        passed: false,
+      });
+      continue;
+    }
+    const single = await computeSingleStudentResult(s.id, resolvedPeriodId, sid, options);
+    results.push(single);
+  }
+
+  // Assign ranks within the result set
+  const sorted = [...results].sort((a, b) => b.generalAverage - a.generalAverage);
+  let rank = 1;
+  for (let i = 0; i < sorted.length; i++) {
+    if (i > 0 && sorted[i].generalAverage !== sorted[i - 1].generalAverage) {
+      rank = i + 1;
+    }
+    const target = results.find((r) => r.studentId === sorted[i].studentId);
+    if (target) {
+      target.rank = rank;
+      target.totalStudents = results.length;
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Compute a single student's result for one period.
+ * (Internal helper used by the bulk computeStudentResults.)
+ */
+async function computeSingleStudentResult(
   studentId: string,
   periodId: string,
   schoolId: string,
   options: Partial<GradeAverageOptions> = {}
 ): Promise<StudentResult> {
   const periodAvg = await computePeriodAverage(studentId, periodId, schoolId, options);
-  
-  const { Student } = await import('../models/index.js');
+
   const student = await Student.findByPk(studentId, {
-    include: [{ model: Class, as: 'class', attributes: ['name'] }]
+    include: [{ model: Class, as: 'class', attributes: ['name'] }],
   });
 
   return {
     studentId,
     studentName: student ? `${student.lastName} ${student.firstName}` : '',
-    className: (student as any).class?.name || '',
+    className: (student as { class?: { name?: string } }).class?.name || '',
     generalAverage: periodAvg.generalAverage,
+    average: periodAvg.generalAverage,
     weightedAverage: periodAvg.weightedAverage,
     totalCoefficient: periodAvg.totalCoefficient,
     subjectAverages: periodAvg.subjectAverages,
@@ -582,8 +684,15 @@ export async function ensureGradingConfig(schoolId: string): Promise<GradingConf
 
 /**
  * Resolve grading rules for a school (alias for resolveGradingConfig).
+ * Accepts an optional scope ({ cycleId, niveauId }) for callers that
+ * configure rules per cycle/niveau. The scope is currently advisory —
+ * resolveGradingConfig reads the school-wide config — but the signature
+ * keeps historical callers working.
  */
-export async function resolveGradingRules(schoolId: string): Promise<GradingConfig> {
+export async function resolveGradingRules(
+  schoolId: string,
+  _scope?: { cycleId?: string | null; niveauId?: string | null }
+): Promise<GradingConfig> {
   return resolveGradingConfig(schoolId);
 }
 

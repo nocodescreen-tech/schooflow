@@ -1,4 +1,4 @@
-import { DocumentTemplate } from '../../types'; 
+import { DocumentTemplate } from '../types/document.js';
 
 export const INITIAL_TEMPLATES: DocumentTemplate[] = [
   {

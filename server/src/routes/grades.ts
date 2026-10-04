@@ -60,7 +60,7 @@ router.post('/',
         const status = scopeError instanceof AppError ? scopeError.statusCode : 403;
         return res.status(status).json({ success: false, error: (scopeError as Error).message });
       }
-      const grade = await Grade.create({ schoolId: req.user!.schoolId!, studentId, subjectId, examType, examName, score, coefficient, term, academicYear, date });
+      const grade = await Grade.create({ schoolId: req.user!.schoolId!, studentId, subjectId, examType, examName, score, coefficient, term, academicYear, date, createdBy: req.user!.id });
       await logAudit(req, { action: 'create', entity: 'grade', entityId: grade.id, details: { studentId, subjectId, score } });
 
       // Emit real-time event
@@ -97,7 +97,7 @@ router.patch('/:id',
     const grade = await Grade.findOne({ where: { id: req.params.id, schoolId: req.user!.schoolId! } });
     if (!grade) return res.status(404).json({ success: false, error: 'Grade not found' });
     try {
-      await assertTeacherScope(req, undefined, grade.subjectId, grade.studentId);
+      await assertTeacherScope(req, undefined, grade.subjectId ?? undefined, grade.studentId);
     } catch (scopeError) {
       const status = scopeError instanceof AppError ? scopeError.statusCode : 403;
       return res.status(status).json({ success: false, error: (scopeError as Error).message });
@@ -110,7 +110,7 @@ router.patch('/:id',
 
     // Emit real-time event
     const student = await Student.findByPk(grade.studentId, { attributes: ['firstName', 'lastName', 'studentId', 'classId'] });
-    const subject = await Subject.findByPk(grade.subjectId, { attributes: ['name', 'code'] });
+    const subject = await Subject.findByPk(grade.subjectId as string, { attributes: ['name', 'code'] });
     const studentClass = student?.classId ? await Class.findByPk(student.classId, { attributes: ['name'] }) : null;
 
     WebSocketEvents.grade.updated(req.user!.schoolId!, {
@@ -118,7 +118,7 @@ router.patch('/:id',
       studentId: grade.studentId,
       studentName: student ? `${student.lastName} ${student.firstName}` : 'Unknown',
       className: studentClass?.name,
-      subjectId: grade.subjectId,
+      subjectId: grade.subjectId || '',
       subjectName: subject?.name || 'Unknown',
       score: Number(grade.score),
       coefficient: Number(grade.coefficient) || 1,
@@ -151,7 +151,7 @@ router.delete('/:id',
 
     // Emit real-time event
     const student = await Student.findByPk(studentId, { attributes: ['firstName', 'lastName', 'studentId', 'classId'] });
-    const subject = await Subject.findByPk(subjectId, { attributes: ['name', 'code'] });
+    const subject = await Subject.findByPk(subjectId as string, { attributes: ['name', 'code'] });
     const studentClass = student?.classId ? await Class.findByPk(student.classId, { attributes: ['name'] }) : null;
 
     WebSocketEvents.grade.deleted(req.user!.schoolId!, {
@@ -159,7 +159,7 @@ router.delete('/:id',
       studentId,
       studentName: student ? `${student.lastName} ${student.firstName}` : 'Unknown',
       className: studentClass?.name,
-      subjectId,
+      subjectId: subjectId || '',
       subjectName: subject?.name || 'Unknown',
       score: 0,
       coefficient: 1,

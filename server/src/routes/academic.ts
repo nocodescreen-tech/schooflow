@@ -157,6 +157,7 @@ router.get(
         '', // studentId - we'll get all students in class
         subj.id,
         period.id,
+        req.user!.schoolId!,
         { missingPolicy: 'ignore' }
       );
 
@@ -169,7 +170,7 @@ router.get(
 
       const results = [];
       for (const s of students) {
-        const avg = await (await import('../services/AcademicEngine.js')).computeSubjectAverage(s.id, req.params.subjectId, period.id, { missingPolicy: 'ignore' });
+        const avg = await (await import('../services/AcademicEngine.js')).computeSubjectAverage(s.id, req.params.subjectId, period.id, req.user!.schoolId!, { missingPolicy: 'ignore' });
         results.push({ studentId: s.id, studentName: `${s.firstName} ${s.lastName}`, studentNumber: s.studentId, ...avg });
       }
 

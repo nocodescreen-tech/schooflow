@@ -516,7 +516,13 @@ export async function runConsistencyCheck(schoolId?: string | null): Promise<Con
 // Standalone script entry point
 // ---------------------------------------------------------------------------
 
-async function main(): Promise<void> {
+/**
+ * CLI entry point. Exported so the thin wrapper in `src/cli/consistency-check.ts`
+ * can invoke it. Kept out of the module's import side effects so importing
+ * `ConsistencyChecker` (e.g. from the diagnostics route or the test suite)
+ * never runs the CLI.
+ */
+export async function main(): Promise<void> {
   const schoolIdArg = process.argv[2] || undefined;
 
   console.log('SchoolFlow Consistency Checker');
@@ -556,20 +562,4 @@ async function main(): Promise<void> {
     console.error('Consistency check failed:', error);
     process.exit(1);
   }
-}
-
-// ESM equivalent of require.main === module
-import { fileURLToPath, pathToFileURL } from 'url';
-
-const isMainModule = (() => {
-  if (!process.argv[1]) return false;
-  try {
-    return fileURLToPath(import.meta.url) === pathToFileURL(process.argv[1]).pathname;
-  } catch {
-    return false;
-  }
-})();
-
-if (isMainModule) {
-  main();
 }

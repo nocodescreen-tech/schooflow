@@ -777,7 +777,7 @@ router.post(
           id: doc.id,
           title: doc.title || '',
           documentType: template.category,
-          studentId: doc.studentId,
+          studentId: doc.studentId ?? undefined,
           studentName: student ? `${student.lastName} ${student.firstName}` : undefined,
           templateId,
           templateName: template.name,
@@ -883,9 +883,9 @@ router.delete('/generated/:id',
       id: doc.id,
       title: doc.title || '',
       documentType: doc.documentType,
-      studentId: doc.studentId,
+      studentId: doc.studentId ?? undefined,
       studentName: undefined,
-      templateId: doc.templateId,
+      templateId: doc.templateId || '',
       templateName: '',
       status: doc.status,
       action: 'deleted',
@@ -977,9 +977,9 @@ router.patch('/generated/:id/status',
       id: doc.id,
       title: doc.title || '',
       documentType: doc.documentType,
-      studentId: doc.studentId,
+      studentId: doc.studentId ?? undefined,
       studentName: undefined,
-      templateId: doc.templateId,
+      templateId: doc.templateId || '',
       templateName: '',
       status: doc.status,
       action: 'status_changed',
@@ -1030,9 +1030,9 @@ router.patch('/generated/:id/decision',
       id: doc.id,
       title: doc.title || '',
       documentType: doc.documentType,
-      studentId: doc.studentId,
+      studentId: doc.studentId ?? undefined,
       studentName: undefined,
-      templateId: doc.templateId,
+      templateId: doc.templateId || '',
       templateName: '',
       status: doc.status,
       action: 'updated',
@@ -1450,9 +1450,9 @@ async function buildContext(
           let c = 0;
           const bySubject = new Map<string, { score: number; coefficient: number }[]>();
           for (const g of mateGrades) {
-            const list = bySubject.get(g.subjectId) || [];
+            const list = bySubject.get(g.subjectId ?? '') || [];
             list.push({ score: Number(g.score), coefficient: Number(g.coefficient || 1) });
-            bySubject.set(g.subjectId, list);
+            bySubject.set(g.subjectId ?? '', list);
           }
           for (const [subjectId, list] of bySubject) {
             const avg = weightedAvgOfScores(list);

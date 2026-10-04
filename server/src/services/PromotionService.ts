@@ -222,7 +222,7 @@ export async function buildDeliberationSheet(
       ? Math.round((candidates.filter((c) => c.passed).length / candidates.length) * 100)
       : 0,
     classAverage: candidates.length
-      ? applyRounding(candidates.reduce((a, c) => a + c.annualAverage, 0) / candidates.length, rules)
+      ? applyRounding(candidates.reduce((a, c) => a + c.annualAverage, 0) / candidates.length, rules.rounding, rules.precision)
       : 0,
     candidates,
     rules,

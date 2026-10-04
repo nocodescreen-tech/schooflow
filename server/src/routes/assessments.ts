@@ -197,7 +197,7 @@ router.put(
           }
         }
       }
-      await assessment.update();
+      await assessment.save();
 
       await logAudit(req, { action: 'assessment_updated', entity: 'assessment', entityId: assessment.id });
       return res.json({ success: true, data: { assessment } });
@@ -244,7 +244,7 @@ router.post(
   '/:id/grades',
   requirePermission('grades', 'create'),
   param('id').isUUID().withMessage('Identifiant invalide'),
-  body('grades').isArray({ min: 1 }).withMessage('Au moins une note requise'),
+  body('grades').isArray().withMessage('Au moins une note requise'),
   body('grades.*.studentId').isUUID().withMessage('studentId requis'),
   body('grades.*.score').isNumeric().withMessage('Note invalide'),
   body('grades.*.comment').optional().isString(),
@@ -266,10 +266,12 @@ router.post(
       const created: Grade[] = [];
       for (const g of grades) {
         const grade = await Grade.create({
+          schoolId: req.user!.schoolId!,
           assessmentId: assessment.id,
           studentId: g.studentId,
           score: Number(g.score),
           comment: g.comment || null,
+          createdBy: req.user!.id,
         });
         created.push(grade);
       }

@@ -7,6 +7,10 @@ import sequelize from '../config/database.js';
  * A school year is split into periods. Each period has its own grades and
  * can be closed independently. When closed, no more grade mutations are
  * allowed inside it.
+ *
+ * Legacy aliases (`sequence`, `startAt`, `endAt`) are exposed as VIRTUAL
+ * getters so historical code keeps working while the canonical
+ * columns remain `position`, `startDate`, `endDate`.
  */
 class EvaluationPeriod extends Model {
   declare id: string;
@@ -20,6 +24,11 @@ class EvaluationPeriod extends Model {
   declare position: number;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
+
+  // Legacy aliases (virtual — not persisted)
+  declare sequence: number;
+  declare startAt: Date;
+  declare endAt: Date;
 }
 
 EvaluationPeriod.init(
@@ -33,6 +42,25 @@ EvaluationPeriod.init(
     endDate: { type: DataTypes.DATE, allowNull: false },
     status: { type: DataTypes.ENUM('open', 'closed', 'archived'), allowNull: false, defaultValue: 'open' },
     position: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    // Legacy virtual aliases
+    sequence: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return (this as unknown as { position: number }).position;
+      },
+    },
+    startAt: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return (this as unknown as { startDate: Date }).startDate;
+      },
+    },
+    endAt: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return (this as unknown as { endDate: Date }).endDate;
+      },
+    },
   },
   { sequelize, tableName: 'evaluation_periods', timestamps: true, underscored: true }
 );

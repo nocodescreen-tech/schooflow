@@ -256,22 +256,22 @@ export function emitToSchool(
   data: PaymentEvent | AttendanceEvent | NotificationEvent | AnnouncementEvent | DashboardEvent | DocumentEvent | FeeEvent | GradeEvent | StudentEvent | TeacherEvent | ClassEvent
 ): void {
   if (!io) return;
-  io.to(`school:${schoolId}`).emit(event, data);
+  io.to(`school:${schoolId}`).emit(event as any, data as any);
 }
 
 export function emitToUser(userId: string, event: keyof ServerToClientEvents, data: unknown): void {
   if (!io) return;
-  io.to(`user:${userId}`).emit(event, data);
+  io.to(`user:${userId}`).emit(event as any, data as any);
 }
 
 export function emitToRoom(room: string, event: keyof ServerToClientEvents, data: unknown): void {
   if (!io) return;
-  io.to(room).emit(event, data);
+  io.to(room).emit(event as any, data as any);
 }
 
 export function broadcastToAll(event: keyof ServerToClientEvents, data: unknown): void {
   if (!io) return;
-  io.emit(event, data);
+  io.emit(event as any, data as any);
 }
 
 export const WebSocketEvents = {

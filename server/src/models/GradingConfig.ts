@@ -40,6 +40,10 @@ class GradingConfig extends Model {
   declare includeAbsentInAverage: boolean;
   /** JSON for custom grade scales (e.g., { A: {min:16, max:20}, B: {min:14, max:15.99} }) */
   declare customGradeScales: Record<string, { min: number; max: number }> | null;
+  /** Optional cycle this config applies to (null = school-wide default) */
+  declare cycleId: string | null;
+  /** Optional niveau this config applies to (null = school-wide default) */
+  declare niveauId: string | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
@@ -47,7 +51,9 @@ class GradingConfig extends Model {
 GradingConfig.init(
   {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    schoolId: { type: DataTypes.UUID, allowNull: false, unique: true, references: { model: 'schools', key: 'id' }, onDelete: 'CASCADE' },
+    schoolId: { type: DataTypes.UUID, allowNull: false, references: { model: 'schools', key: 'id' }, onDelete: 'CASCADE' },
+    cycleId: { type: DataTypes.UUID, references: { model: 'cycles', key: 'id' }, onDelete: 'SET NULL' },
+    niveauId: { type: DataTypes.UUID, references: { model: 'niveaux', key: 'id' }, onDelete: 'SET NULL' },
     passingAverage: { type: DataTypes.DECIMAL(4, 2), allowNull: false, defaultValue: 10 },
     mentionThresholds: {
       type: DataTypes.JSONB,
@@ -70,7 +76,15 @@ GradingConfig.init(
     includeAbsentInAverage: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     customGradeScales: { type: DataTypes.JSONB, allowNull: true, defaultValue: null },
   },
-  { sequelize, tableName: 'grading_configs', timestamps: true, underscored: true }
+  {
+    sequelize,
+    tableName: 'grading_configs',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+      { unique: true, fields: ['school_id', 'cycle_id', 'niveau_id'], name: 'grading_configs_scope_unique' },
+    ],
+  }
 );
 
 export default GradingConfig;

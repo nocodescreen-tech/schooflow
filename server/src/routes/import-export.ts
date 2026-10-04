@@ -302,6 +302,7 @@ router.post('/import/grades',
             examName: row.examName || null,
             coefficient: parseFloat(row.coefficient) || 1.0,
             academicYear: row.academicYear || '2025-2026',
+            createdBy: req.user!.id,
           };
 
           if (preview) {
