@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { backdropVariants, dialogVariants } from '../lib/motion';
 
@@ -27,19 +26,14 @@ const sizes = {
  * shared motion system; the previous version used an ad-hoc spring, which is
  * exactly the kind of per-component value the motion tokens exist to remove.
  */
-export default function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
-  const modalContent = (
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = 'md',
+}: ModalProps) {
+  return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
@@ -64,7 +58,11 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
             {title && (
               <div className="flex items-center justify-between border-b border-line px-6 py-4">
                 <h2 className="text-h3 text-ink">{title}</h2>
-                <button onClick={onClose} className="btn-icon" aria-label="Fermer">
+                <button
+                  onClick={onClose}
+                  className="btn-icon"
+                  aria-label="Fermer"
+                >
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -75,8 +73,6 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
       )}
     </AnimatePresence>
   );
-
-  if (!isOpen) return null;
-
-  return createPortal(modalContent, document.body);
 }
+
+export default Modal;

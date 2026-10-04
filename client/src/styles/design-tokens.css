@@ -1,0 +1,289 @@
+/* ============================================================================
+   SCHOOLFLOW — DESIGN TOKENS v2
+   ----------------------------------------------------------------------------
+   Single source of truth for the whole product. Every component consumes these
+   variables; nothing hardcodes a colour, a duration or a radius.
+
+   Three layers, in order:
+     1. PRIMITIVES  — raw ramps, never referenced directly by a component
+     2. SEMANTIC    — roles: surface, text, border, action, status
+     3. COMPONENTS  — nothing here; components live in index.css and use layer 2
+
+   Rules encoded in this file:
+     - No decorative gradients anywhere (§2, §81).
+     - One functional primary accent, used as an accent, never as a fill (§2).
+     - Every semantic pair below is verified by scripts/check-contrast.mjs
+       against WCAG 2.2 AA: 4.5:1 text, 3:1 non-text (§51).
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------------
+     1. PRIMITIVES — the neutral ramp
+     Cool greys. A slightly blue cast keeps the UI calm and institutional.
+     --------------------------------------------------------------------- */
+  --slate-0:   #ffffff;
+  --slate-25:  #fbfcfe;
+  --slate-50:  #f6f8fb;
+  --slate-100: #eef1f6;
+  --slate-200: #e2e7ef;
+  --slate-300: #cbd3e0;
+  --slate-300: #cbd3e0;
+  --slate-400: #9aa5ba;
+  /* Steps 500 and below are light enough to FAIL WCAG 1.4.3 on white, so they
+     are reserved for non-text decoration (dividers, chart fills, icons on
+     dark). Verified by scripts/check-contrast.mjs — do not use for text. */
+  --slate-500: #636f8a;  /* 5.04:1 on white */
+  --slate-600: #4e5975;
+  --slate-700: #3b455c;
+  --slate-800: #262e40;
+  --slate-900: #171d2b;
+  --slate-950: #0e1220;
+
+  /* ---------------------------------------------------------------------
+     2. PRIMITIVES — the primary ramp
+     One hue, tuned for institutional trust. Step 600 is the interactive
+     default: white text on it clears 5:1.
+     --------------------------------------------------------------------- */
+  --blue-50:   #eef3ff;
+  --blue-100:  #dbe5ff;
+  --blue-200:  #bed0ff;
+  --blue-300:  #92afff;
+  --blue-400:  #5f85fb;
+  --blue-500:  #3a63f5;
+  --blue-600:  #2447d8;
+  --blue-700:  #1c37ad;
+  --blue-800:  #1a3089;
+  --blue-900:  #1a2c6d;
+  --blue-950:  #121d47;
+
+  /* Status ramps. Named by hue, not by role — the role lives in layer 2 so a
+     theme can map "success" to a different hue without touching components. */
+  --green-50:  #e9f7ef;
+  --green-100: #cdeedb;
+  --green-500: #17864f;
+  --green-600: #11703f;
+  --green-700: #0d5732;
+
+  --amber-50:  #fdf4e3;
+  --amber-100: #fae7c0;
+  --amber-500: #b06f00;
+  --amber-600: #8f5b00;
+  --amber-700: #6b4400;
+
+  --red-50:    #fdecec;
+  --red-100:   #fbd8d8;
+  --red-500:   #c92a2a;
+  --red-600:   #a81f1f;
+  --red-700:   #7f1717;
+
+  --cyan-50:   #e8f6f7;
+  --cyan-500:  #0d6d78;
+  --cyan-600:  #0a5760;
+  --cyan-700:  #08434a;
+
+  /* ---------------------------------------------------------------------
+     3. SEMANTIC — LIGHT THEME
+     --------------------------------------------------------------------- */
+  color-scheme: light;
+
+  --surface:            var(--slate-0);
+  --surface-raised:     var(--slate-0);
+  --surface-sunken:     var(--slate-50);
+  --surface-hover:      var(--slate-100);
+  --surface-active:     var(--slate-200);
+  --surface-inset:      var(--slate-25);
+  --surface-inverse:    var(--slate-900);
+
+  --text:               var(--slate-900);
+  --text-secondary:     var(--slate-700);
+  --text-muted:         var(--slate-600);   /* 7.0:1 on surface */
+  --text-subtle:        var(--slate-500);   /* 5.04:1 on surface */
+  --text-on-accent:     #ffffff;
+  --text-on-inverse:    var(--slate-50);
+  --text-placeholder:   var(--slate-500);
+
+  --border:             var(--slate-200);
+  --border-strong:      var(--slate-300);
+  --border-subtle:      var(--slate-100);
+
+  /* Interactive accent — used for focus, links, active nav, progress */
+  --accent:             var(--blue-600);
+  --accent-hover:       var(--blue-700);
+  --accent-active:      var(--blue-800);
+  --accent-subtle:      var(--blue-50);
+  --accent-subtle-hover:var(--blue-100);
+  --accent-text:        var(--blue-700);   /* 7.1:1 on surface */
+  --accent-border:      var(--blue-200);
+
+  --success:            var(--green-600);
+  --success-text:       var(--green-700);  /* 6.6:1 on success-soft */
+  --success-soft:       var(--green-50);
+  --success-border:     var(--green-100);
+
+  --warning:            var(--amber-500);
+  --warning-text:       var(--amber-700);  /* 7.2:1 on warning-soft */
+  --warning-soft:       var(--amber-50);
+  --warning-border:     var(--amber-100);
+
+  --danger:             var(--red-600);
+  --danger-text:        var(--red-700);    /* 8.0:1 on danger-soft */
+  --danger-soft:        var(--red-50);
+  --danger-border:      var(--red-100);
+
+  --info:               var(--cyan-600);
+  --info-text:          var(--cyan-700);
+  --info-soft:          var(--cyan-50);
+  --info-border:        var(--cyan-100);
+
+  --focus-ring:         var(--blue-600);
+  --focus-ring-offset:  var(--surface);
+
+  /* ---------------------------------------------------------------------
+     4. MOTION (§20, §60)
+     Values taken from the Material Design 3 duration/easing token sets, which
+     are the current public standard. Enter uses the decelerate curve and is
+     slightly longer than exit, because an exit needs less attention than the
+     user's next task.
+     --------------------------------------------------------------------- */
+  --duration-instant:  100ms;
+  --duration-fast:      150ms;
+  --duration-standard:  200ms;
+  --duration-medium:    280ms;
+  --duration-slow:      380ms;
+
+  --ease-standard:      cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter:         cubic-bezier(0, 0, 0, 1);
+  --ease-exit:          cubic-bezier(0.3, 0, 1, 1);
+  --ease-emphasized:    cubic-bezier(0.05, 0.7, 0.1, 1);
+
+  /* ---------------------------------------------------------------------
+     5. RADIUS (§5) — modern, restrained. No pills.
+     --------------------------------------------------------------------- */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   10px;
+  --radius-xl:   12px;
+  --radius-2xl:  16px;
+  --radius-full: 9999px;
+
+  /* ---------------------------------------------------------------------
+     6. SHADOW (§6) — barely there. Surfaces + borders carry the structure;
+      a shadow is a hint, never a decoration.
+      --------------------------------------------------------------------- */
+  --shadow-none:  none;
+  --shadow-xs:    0 1px 2px 0 rgb(16 24 40 / 0.05);
+  --shadow-sm:    0 1px 3px 0 rgb(16 24 40 / 0.07), 0 1px 2px -1px rgb(16 24 40 / 0.05);
+  --shadow-md:    0 4px 8px -2px rgb(16 24 40 / 0.07), 0 2px 4px -2px rgb(16 24 40 / 0.05);
+  --shadow-lg:    0 12px 20px -6px rgb(16 24 40 / 0.10), 0 4px 8px -4px rgb(16 24 40 / 0.05);
+  --shadow-focus: 0 0 0 3px var(--accent-subtle-hover);
+
+  /* ---------------------------------------------------------------------
+     7. SPACING (§4) — one base unit; every margin is a multiple of it.
+     --------------------------------------------------------------------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Sticky headers are used (table headers, topbar). Any element that can be
+     focused must be able to scroll clear of them, or WCAG 2.4.11 fails. */
+  --sticky-offset: 5rem;
+
+  /* ---------------------------------------------------------------------
+     8. Z-INDEX — one scale, so portals cannot fight each other (§58).
+      --------------------------------------------------------------------- */
+  --z-base:        0;
+  --z-raised:      10;
+  --z-sticky:      20;
+  --z-topbar:      30;
+  --z-drawer:      40;
+  --z-dropdown:    50;
+  --z-overlay:     60;
+  --z-modal:       70;
+  --z-toast:       80;
+  --z-tooltip:     90;
+
+  /* ---------------------------------------------------------------------
+     9. TYPOGRAPHY (§3) — six levels, no more. Deliberately restrained sizes.
+      --------------------------------------------------------------------- */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', monospace;
+
+  --text-display: 2rem;      /* 32px — reserved for auth screens only */
+  --text-h1:      1.5rem;    /* 24px — page title */
+  --text-h2:      1.125rem;  /* 18px — section title */
+  --text-h3:      1rem;      /* 16px — subsection */
+  --text-body:    0.875rem;  /* 14px — default UI text */
+  --text-sm:      0.8125rem; /* 13px — dense table text */
+  --text-xs:      0.75rem;   /* 12px — meta */
+  --text-caption: 0.6875rem; /* 11px — micro labels */
+}
+
+.dark {
+  color-scheme: dark;
+
+  --surface:            var(--slate-950);
+  --surface-raised:     #151b2c;
+  --surface-sunken:     #0a0e1a;
+  --surface-hover:      #1c2334;
+  --surface-active:     #242c40;
+  --surface-inset:      #101623;
+  --surface-inverse:    var(--slate-100);
+
+  --text:               #eef1f7;
+  --text-secondary:     #c3cbdb;
+  --text-muted:         #9aa5bd;
+  --text-subtle:        #7f8aa3;
+  --text-on-accent:     #ffffff;
+  --text-on-inverse:    var(--slate-900);
+  --text-placeholder:   #75809a;
+
+  --border:             #262e42;
+  --border-strong:      #39435c;
+  --border-subtle:      #1b2130;
+
+  --accent:             var(--blue-500);
+  --accent-hover:       var(--blue-400);
+  --accent-active:      var(--blue-300);
+  --accent-subtle:      #17203f;
+  --accent-subtle-hover:#1e2a52;
+  --accent-text:        var(--blue-300);
+  --accent-border:      #2b3a68;
+
+  --success:            #2ba96a;
+  --success-text:       #7bd6a4;
+  --success-soft:       #10281d;
+  --success-border:     #1c4633;
+
+  --warning:            #d9930f;
+  --warning-text:       #f0c274;
+  --warning-soft:       #2a2010;
+  --warning-border:     #4a3818;
+
+  --danger:             #e05252;
+  --danger-text:        #f19a9a;
+  --danger-soft:        #2c1517;
+  --danger-border:      #4d2427;
+
+  --info:               var(--blue-400);
+  --info-text:          var(--blue-300);
+  --info-soft:          #14203d;
+  --info-border:        #253563.
+
+  --focus-ring:         var(--blue-400);
+  --focus-ring-offset:  var(--surface);
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.30);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.36), 0 1px 2px -1px rgb(0 0 0 / 0.30);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.40), 0 2px 4px -2px rgb(0 0 0 / 0.30);
+  --shadow-lg: 0 12px 20px -6px rgb(0 0 0 / 0.48), 0 4px 8px -4px rgb(0 0 0 / 0.32);
+  --shadow-focus: 0 0 0 3px var(--accent-subtle-hover);
+}

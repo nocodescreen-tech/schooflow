@@ -86,11 +86,11 @@ function WorkspaceSwitcher({ ctx }: { ctx: WorkspaceContext }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left"
+        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-bg_subtle/5 hover:bg-bg_subtle/10 transition-colors text-left"
         aria-expanded={open}
         aria-haspopup="listbox"
       >
-        <div className="w-8 h-8 rounded-lg bg-primary-500/20 flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-accent-subtle flex items-center justify-center shrink-0">
           {(() => {
             const Icon = ICONS[ctx.active.icon] ?? LayoutDashboard;
             return <Icon className="w-4 h-4 text-primary-400" />;
@@ -98,7 +98,7 @@ function WorkspaceSwitcher({ ctx }: { ctx: WorkspaceContext }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] uppercase tracking-wide text-gray-500">Espace de travail</p>
-          <p className="text-xs font-medium text-white truncate">{ctx.active.name}</p>
+          <p className="text-xs font-medium text-ink truncate">{ctx.active.name}</p>
         </div>
         <ChevronDown className={cn('w-4 h-4 text-gray-500 transition-transform', open && 'rotate-180')} />
       </button>
@@ -124,8 +124,8 @@ function WorkspaceSwitcher({ ctx }: { ctx: WorkspaceContext }) {
                   className={cn(
                     'w-full flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors',
                     w.code === ctx.active.code
-                      ? 'bg-primary-500/10 text-primary-400'
-                      : 'text-gray-300 hover:bg-white/5'
+                      ? 'bg-accent/10 text-primary-400'
+                      : 'text-gray-300 hover:bg-bg_subtle/5'
                   )}
                 >
                   {(() => {
@@ -170,24 +170,24 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-dark/50 z-40 lg:hidden" onClick={onClose} />
+        <div className="fixed inset-0 bg-bg_subtle/50 z-40 lg:hidden" onClick={onClose} />
       )}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-[280px] bg-dark flex flex-col border-r border-white/10 transition-transform duration-300',
+          'fixed inset-y-0 left-0 z-50 w-[280px] bg-bg_subtle flex flex-col border-r border-white/10 transition-transform duration-300',
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         <div className="flex items-center justify-between h-16 px-5 border-b border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-ink" />
             </div>
-            <span className="text-lg font-bold text-white tracking-tight">
+            <span className="text-lg font-bold text-ink tracking-tight">
               SCHOOL<span className="text-primary-400">FLOW</span>
             </span>
           </div>
-          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-ink hover:bg-bg_subtle/5 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -196,7 +196,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {isLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-9 rounded-lg bg-white/5 animate-pulse" />
+                <div key={i} className="h-9 rounded-lg bg-bg_subtle/5 animate-pulse" />
               ))}
             </div>
           ) : isError || !data ? (
@@ -233,8 +233,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                               cn(
                                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                                 isActive
-                                  ? 'bg-primary-500/10 text-primary-400'
-                                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                  ? 'bg-accent/10 text-primary-400'
+                                  : 'text-gray-400 hover:text-ink hover:bg-bg_subtle/5'
                               )
                             }
                           >
@@ -243,7 +243,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                 {isActive && (
                                   <motion.span
                                     layoutId="sidebar-active"
-                                    className="absolute left-0 w-1 h-6 bg-primary-500 rounded-r-full"
+                                    className="absolute left-0 w-1 h-6 bg-accent rounded-r-full"
                                   />
                                 )}
                                 <Icon className="w-5 h-5 flex-shrink-0" />
@@ -264,19 +264,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="p-4 border-t border-white/10">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 bg-primary-500/20 rounded-full flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 bg-accent-subtle rounded-full flex items-center justify-center shrink-0">
                 <span className="text-sm font-semibold text-primary-400">
                   {(user?.name ?? '?').split(' ').filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('')}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{user?.name}</p>
+                <p className="text-sm font-medium text-ink truncate">{user?.name}</p>
                 <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               </div>
             </div>
             <ThemeToggle />
           </div>
-          <button onClick={logout} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
+          <button onClick={logout} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-400 hover:text-ink hover:bg-bg_subtle/5 rounded-xl transition-colors">
             <LogOut className="w-4 h-4" />
             <span>Déconnexion</span>
           </button>
