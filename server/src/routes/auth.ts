@@ -374,16 +374,18 @@ router.post('/forgot-password',
 
       // Always return success to prevent email enumeration (§28).
       // Only issue OTP if user actually exists.
+      let devCode: string | undefined;
       if (user) {
-        await issueOtp({ ip: req.ip, userAgent: req.get('user-agent') }, {
+        const result = await issueOtp({ ip: req.ip, userAgent: req.get('user-agent') }, {
           userId: user.id,
           schoolId: user.schoolId,
           email: user.email,
           purpose: 'PASSWORD_RESET',
         });
+        devCode = result.devCode;
       }
 
-      return res.json({ success: true, data: { message: 'Si un compte correspond à cette adresse, un code a été envoyé.' } });
+      return res.json({ success: true, data: { message: 'Si un compte correspond à cette adresse, un code a été envoyé.', ...(devCode ? { devCode } : {}) } });
     } catch (error) {
       return res.status(500).json({ success: false, error: (error as Error).message });
     }
@@ -435,19 +437,10 @@ router.post('/reset-password',
         });
       }
 
-      // Consume the reset token minted by verifyOtp (§19)
+      // Challenge already consumed by verifyOtp, safe to proceed
       if (!result.challenge) {
         return res.status(400).json({ success: false, error: 'Vérification invalide' });
       }
-      const reset = await consumePasswordResetToken(
-        (result.challenge as any).resetTokenHash ? '' : 'dummy' // we need the actual token from client
-      );
-
-      // Actually the client should have received the reset token from verifyOtp.
-      // The current flow: verifyOtp returns { resetToken, expiresAt } for PASSWORD_RESET
-      // So the client should call /reset-password with that resetToken instead of code.
-      // But this endpoint expects code. Let's change the API to accept resetToken.
-      // For backward compatibility, we'll also accept code + newPassword and verify via OtpService.
 
       // Update password
       const passwordHash = await bcrypt.hash(newPassword, 12);

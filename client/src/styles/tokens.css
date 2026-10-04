@@ -106,13 +106,13 @@
   --border-subtle:      var(--slate-100);
 
   /* Interactive accent — used for focus, links, active nav, progress */
-  --accent:             var(--blue-600);
-  --accent-hover:       var(--blue-700);
-  --accent-active:      var(--blue-800);
-  --accent-subtle:      var(--blue-50);
-  --accent-subtle-hover:var(--blue-100);
-  --accent-text:        var(--blue-700);   /* 7.1:1 on surface */
-  --accent-border:      var(--blue-200);
+  --accent:             var(--cyan-600);
+  --accent-hover:       var(--cyan-700);
+  --accent-active:      var(--cyan-700);
+  --accent-subtle:      var(--cyan-50);
+  --accent-subtle-hover:var(--cyan-100);
+  --accent-text:        var(--cyan-700);   /* 7.1:1 on surface */
+  --accent-border:      var(--cyan-200);
 
   --success:            var(--green-600);
   --success-text:       var(--green-700);  /* 6.6:1 on success-soft */
@@ -129,12 +129,12 @@
   --danger-soft:        var(--red-50);
   --danger-border:      var(--red-100);
 
-  --info:               var(--blue-600);
-  --info-text:          var(--blue-700);
-  --info-soft:          var(--blue-50);
-  --info-border:        var(--blue-100);
+  --info:               var(--cyan-600);
+  --info-text:          var(--cyan-700);
+  --info-soft:          var(--cyan-50);
+  --info-border:        var(--cyan-100);
 
-  --focus-ring:         var(--blue-600);
+  --focus-ring:         var(--cyan-600);
   --focus-ring-offset:  var(--surface);
 
   /* ---------------------------------------------------------------------
